@@ -26,7 +26,7 @@ class _HyperLoopMapState extends State<HyperLoopMap> {
 
   static final CameraPosition _initialCamera = CameraPosition(
     target: LatLng(0, 0),
-    zoom: 4,
+    zoom: 12,
   );
 
   CameraPosition _currentCameraPosition;
