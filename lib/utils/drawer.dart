@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hyperloop/ticket.dart';
+import 'package:hyperloop/pages/ticket.dart';
 
 class HyperloopDrawer extends StatelessWidget {
   final TabCallback onTabSelect;
