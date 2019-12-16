@@ -115,9 +115,11 @@ class _HyperLoopMapState extends State<HyperLoopMap> {
           child: FloatingActionButton(
             onPressed: () async {
               debugPrint(_currentCameraPosition.toString());
-              final GoogleMapController controller = await _controller.future;
-              controller.animateCamera(
-                  CameraUpdate.newCameraPosition(_currentCameraPosition));
+               _controller.future.then((controller){
+                 controller.animateCamera(
+                     CameraUpdate.newCameraPosition(_currentCameraPosition));
+               });
+
             },
             child: Icon(Icons.my_location),
           ),
