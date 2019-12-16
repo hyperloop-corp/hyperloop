@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hyperloop/ticket.dart';
 
 class HyperloopDrawer extends StatelessWidget {
   final TabCallback onTabSelect;
@@ -33,6 +34,15 @@ class HyperloopDrawer extends StatelessWidget {
             onTap: () {
               onTabSelect('Starred stops');
               Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.view_headline),
+            title: Text('My Tickets'),
+            onTap: () {
+              onTabSelect('My Tickets');
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Ticket()));
             },
           ),
           ListTile(
