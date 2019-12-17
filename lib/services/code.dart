@@ -16,7 +16,6 @@ class FirebasePhoneAuth {
 
   static instantiate({String phoneNumber}) async {
     firebaseAuth = await FirebaseAuth.instance;
-    print('Hi from auth' + firebaseAuth);
     phone = phoneNumber;
     startAuth();
   }

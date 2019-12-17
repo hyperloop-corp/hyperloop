@@ -7,12 +7,19 @@ import 'package:flutter/cupertino.dart';
 import 'pages/landing.dart';
 
 void main() => runApp(MaterialApp(
-  initialRoute: '/',
-  routes: {
-    '/': (context) => Landing(),
-    '/home': (context) => HomePage(),
-    '/mobile_input': (context) => PhoneAuthGetPhone(),
-    '/verify': (context) => PhoneAuthVerify()
-  },
-));
-
+      debugShowCheckedModeBanner: false,
+      title: 'Hyperloop',
+      theme: ThemeData(
+          primarySwatch: Colors.blue,
+          textTheme: TextTheme(
+            body1: TextStyle(
+                color: Colors.white, fontFamily: 'ProximaNova', fontSize: 20),
+          )),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => Landing(),
+        '/home': (context) => HomePage(),
+        '/mobile_input': (context) => PhoneAuthGetPhone(),
+        '/verify': (context) => PhoneAuthVerify()
+      },
+    ));
