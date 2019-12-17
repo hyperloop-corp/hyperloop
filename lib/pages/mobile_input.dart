@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:hyperloop/data_models/countries.dart';
-import 'package:hyperloop/services/code.dart';
-import 'package:hyperloop/pages/phone_verify.dart';
-import 'package:hyperloop/services/code.dart' show FirebasePhoneAuth;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hyperloop/utils/widgets.dart';
 
 class PhoneAuthGetPhone extends StatefulWidget {
@@ -52,6 +51,131 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
       countries.add(Country.fromJson(country));
     }
     return countries;
+  }
+
+  String phoneNo;
+  String smsOTP;
+  String verificationId;
+  String errorMessage = '';
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> verifyPhone() async {
+    final PhoneCodeSent smsOTPSent = (String verId, [int forceCodeResend]) {
+      this.verificationId = verId;
+      smsOTPDialog(context).then((value) {
+        print('sign in');
+      });
+    };
+    try {
+      await _auth.verifyPhoneNumber(
+          phoneNumber: countries[_selectedCountryIndex].dialCode +
+              _phoneNumberController.text,
+          // PHONE NUMBER TO SEND OTP
+          codeAutoRetrievalTimeout: (String verId) {
+            //Starts the phone number verification process for the given phone number.
+            //Either sends an SMS with a 6 digit code to the phone number specified, or sign's the user in and [verificationCompleted] is called.
+            this.verificationId = verId;
+          },
+          codeSent: smsOTPSent,
+          // WHEN CODE SENT THEN WE OPEN DIALOG TO ENTER OTP.
+          timeout: const Duration(seconds: 20),
+          verificationCompleted: (AuthCredential phoneAuthCredential) {
+            print(phoneAuthCredential);
+          },
+          verificationFailed: (AuthException e) {
+            print('${e.message}');
+          });
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  Future<bool> smsOTPDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Center(
+              child: new AlertDialog(
+                title: Text('Enter SMS Code'),
+                content: Container(
+                  height: 85,
+                  child: Column(children: [
+                    TextField(
+                      onChanged: (value) {
+                        this.smsOTP = value;
+                      },
+                    ),
+                    (errorMessage != ''
+                        ? Text(
+                            errorMessage,
+                            style: TextStyle(color: Colors.red),
+                          )
+                        : Container())
+                  ]),
+                ),
+                contentPadding: EdgeInsets.all(10),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Done'),
+                    onPressed: () {
+                      _auth.currentUser().then((user) {
+                        if (user != null) {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pushReplacementNamed('/home');
+                        } else {
+                          signIn();
+                        }
+                      });
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  signIn() async {
+    try {
+      final AuthCredential credential = PhoneAuthProvider.getCredential(
+        verificationId: verificationId,
+        smsCode: smsOTP,
+      );
+      _auth.signInWithCredential(credential).then((AuthResult result) async {
+        final FirebaseUser user = result.user;
+        final FirebaseUser currentUser = await _auth.currentUser();
+        assert(user.uid == currentUser.uid);
+        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed('/home');
+      });
+    } catch (e) {
+      handleError(e);
+    }
+  }
+
+  handleError(PlatformException error) {
+    print(error);
+    switch (error.code) {
+      case 'ERROR_INVALID_VERIFICATION_CODE':
+        FocusScope.of(context).requestFocus(new FocusNode());
+        setState(() {
+          errorMessage = 'Invalid Code';
+        });
+        Navigator.of(context).pop();
+        smsOTPDialog(context).then((value) {
+          print('sign in');
+        });
+        break;
+      default:
+        setState(() {
+          errorMessage = error.message;
+        });
+
+        break;
+    }
   }
 
   @override
@@ -167,7 +291,7 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
           RaisedButton(
             elevation: 15.0,
             onPressed: () {
-              startPhoneAuth();
+              verifyPhone();
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -221,49 +345,54 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
 
   Widget searchAndPickYourCountryHere() => WillPopScope(
         onWillPop: () => Future.value(false),
-        child: Dialog(
-          key: Key('SearchCountryDialog'),
-          elevation: 8.0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-          child: Container(
-            margin: const EdgeInsets.all(5.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                //  TextFormField for searching country
-                PhoneAuthWidgets.searchCountry(_searchCountryController),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Dialog(
+            key: Key('SearchCountryDialog'),
+            elevation: 8.0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0)),
+            child: Container(
+              margin: const EdgeInsets.all(5.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  //  TextFormField for searching country
+                  PhoneAuthWidgets.searchCountry(_searchCountryController),
 
-                //  Returns a list of Countries that will change according to the search query
-                SizedBox(
-                  height: 190.0,
-                  child: StreamBuilder<List<Country>>(
-                      //key: Key('Countries-StreamBuilder'),
-                      stream: _countriesStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          // print(snapshot.data.length);
-                          return snapshot.data.length == 0
-                              ? Center(
-                                  child: Text('Your search found no results',
-                                      style: TextStyle(fontSize: 16.0)),
-                                )
-                              : ListView.builder(
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder: (BuildContext context, int i) =>
-                                      PhoneAuthWidgets.selectableWidget(
-                                          snapshot.data[i],
-                                          (Country c) => selectThisCountry(c)),
-                                );
-                        } else if (snapshot.hasError)
-                          return Center(
-                            child: Text('Seems, there is an error',
-                                style: TextStyle(fontSize: 16.0)),
-                          );
-                        return Center(child: CircularProgressIndicator());
-                      }),
-                )
-              ],
+                  //  Returns a list of Countries that will change according to the search query
+                  SizedBox(
+                    height: 300.0,
+                    child: StreamBuilder<List<Country>>(
+                        //key: Key('Countries-StreamBuilder'),
+                        stream: _countriesStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            // print(snapshot.data.length);
+                            return snapshot.data.length == 0
+                                ? Center(
+                                    child: Text('Your search found no results',
+                                        style: TextStyle(fontSize: 16.0)),
+                                  )
+                                : ListView.builder(
+                                    itemCount: snapshot.data.length,
+                                    itemBuilder:
+                                        (BuildContext context, int i) =>
+                                            PhoneAuthWidgets.selectableWidget(
+                                                snapshot.data[i],
+                                                (Country c) =>
+                                                    selectThisCountry(c)),
+                                  );
+                          } else if (snapshot.hasError)
+                            return Center(
+                              child: Text('Seems, there is an error',
+                                  style: TextStyle(fontSize: 16.0)),
+                            );
+                          return Center(child: CircularProgressIndicator());
+                        }),
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -280,20 +409,6 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
       setState(() {
         _selectedCountryIndex = countries.indexOf(country);
       });
-    });
-  }
-
-  startPhoneAuth() {
-    FirebasePhoneAuth.instantiate(
-        phoneNumber: countries[_selectedCountryIndex].dialCode +
-            _phoneNumberController.text);
-
-    FirebasePhoneAuth.stateStream.listen((state) {
-      if (state == PhoneAuthState.CodeSent) {
-        Navigator.pushReplacementNamed(context, '/verify');
-      }
-      if (state == PhoneAuthState.Failed)
-        debugPrint("Seems there is an issue with it");
     });
   }
 }

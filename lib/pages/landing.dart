@@ -13,20 +13,23 @@ class _LandingState extends State<Landing> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Image.asset('images/ctu.jpg'),
-              Center(
-                child: Text('Welcome to Hyperloop',
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 30.0,
-                      letterSpacing: 2.0
-                  ),),
-              )
-            ],
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Image.asset('images/ctu.jpg'),
+                  Text('Welcome to Hyperloop',
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 30.0,
+                        letterSpacing: 2.0
+                    ),)
+                ],
+              ),
+            ),
           ),
         ),
       ),

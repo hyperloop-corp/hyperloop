@@ -1,10 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:hyperloop/pages/ticket.dart';
 
-class HyperloopDrawer extends StatelessWidget {
+enum ConfirmAction { CANCEL, ACCEPT }
+
+class HyperloopDrawer extends StatefulWidget {
   final TabCallback onTabSelect;
 
   HyperloopDrawer({this.onTabSelect});
+
+  @override
+  _HyperloopDrawerState createState() => _HyperloopDrawerState();
+}
+
+class _HyperloopDrawerState extends State<HyperloopDrawer> {
+  Future<void> logout() async {
+    _asyncConfirmDialog(context).then((value){
+      print(value);
+    });
+  }
+
+  Future<ConfirmAction> _asyncConfirmDialog(BuildContext context) async {
+    return showDialog<ConfirmAction>(
+        context: context,
+        barrierDismissible: false, // user must tap button for close dialog!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Confirm Logout?'),
+            content: const Text(
+                'You will be logged out of this device.'),
+            actions: <Widget>[
+              FlatButton(
+                child: const Text('No'),
+                onPressed: () {
+                  Navigator.of(context).pop(ConfirmAction.CANCEL);
+                },
+              ),
+              FlatButton(
+                child: const Text('Yes'),
+                onPressed: () {
+                  Navigator.of(context).pop(ConfirmAction.ACCEPT);
+                },
+              )
+            ],
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +64,7 @@ class HyperloopDrawer extends StatelessWidget {
             leading: Icon(Icons.place),
             title: Text('Nearby'),
             onTap: () {
-              onTabSelect('Nearby');
+              widget.onTabSelect('Nearby');
               Navigator.pop(context);
             },
           ),
@@ -32,7 +72,7 @@ class HyperloopDrawer extends StatelessWidget {
             leading: Icon(Icons.star),
             title: Text('Starred stops'),
             onTap: () {
-              onTabSelect('Starred stops');
+              widget.onTabSelect('Starred stops');
               Navigator.pop(context);
             },
           ),
@@ -40,7 +80,7 @@ class HyperloopDrawer extends StatelessWidget {
             leading: Icon(Icons.view_headline),
             title: Text('My Tickets'),
             onTap: () {
-              onTabSelect('My Tickets');
+              widget.onTabSelect('My Tickets');
               Navigator.push(
                   context, MaterialPageRoute(builder: (context) => Ticket()));
             },
@@ -49,7 +89,7 @@ class HyperloopDrawer extends StatelessWidget {
             leading: Icon(Icons.alarm),
             title: Text('My reminders'),
             onTap: () {
-              onTabSelect('My reminders');
+              widget.onTabSelect('My reminders');
               Navigator.pop(context);
             },
           ),
@@ -57,7 +97,7 @@ class HyperloopDrawer extends StatelessWidget {
             leading: Icon(Icons.directions),
             title: Text('Plan a trip'),
             onTap: () {
-              onTabSelect('Plan a trip');
+              widget.onTabSelect('Plan a trip');
               Navigator.pop(context);
             },
           ),
@@ -65,7 +105,7 @@ class HyperloopDrawer extends StatelessWidget {
             leading: Icon(Icons.payment),
             title: Text('Pay my fare'),
             onTap: () {
-              onTabSelect('Pay my fare');
+              widget.onTabSelect('Pay my fare');
               Navigator.pop(context);
             },
           ),
@@ -75,21 +115,32 @@ class HyperloopDrawer extends StatelessWidget {
           ListTile(
             title: Text('Settings'),
             onTap: () {
-              onTabSelect('Settings');
+              widget.onTabSelect('Settings');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: Text('Logout'),
+            onTap: () async {
+
+              final ConfirmAction value = await _asyncConfirmDialog(context);
+              if(value == ConfirmAction.ACCEPT){
+                Navigator.pushReplacementNamed(context, '/');
+              }
               Navigator.pop(context);
             },
           ),
           ListTile(
             title: Text('Help'),
             onTap: () {
-              onTabSelect('Help');
+              widget.onTabSelect('Help');
               Navigator.pop(context);
             },
           ),
           ListTile(
             title: Text('Send feedback'),
             onTap: () {
-              onTabSelect('Send feedback');
+              widget.onTabSelect('Send feedback');
               Navigator.pop(context);
             },
           ),
