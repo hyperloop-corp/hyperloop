@@ -3,15 +3,26 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
-enum PhoneAuthState { Started, CodeSent, CodeResent, Verified, Failed, Error, AutoRetrievalTimeOut }
+enum PhoneAuthState {
+  Started,
+  CodeSent,
+  CodeResent,
+  Verified,
+  Failed,
+  Error,
+  AutoRetrievalTimeOut
+}
 
 class FirebasePhoneAuth {
   static var firebaseAuth;
   static var _authCredential, actualCode, phone, status;
+
   // ignore: close_sinks
   static StreamController<String> statusStream = StreamController();
+
   // ignore: close_sinks
-  static StreamController<PhoneAuthState> phoneAuthState = StreamController(sync: true);
+  static StreamController<PhoneAuthState> phoneAuthState =
+      StreamController(sync: true);
   static Stream stateStream = phoneAuthState.stream;
 
   static instantiate({String phoneNumber}) async {
@@ -91,13 +102,14 @@ class FirebasePhoneAuth {
       onAuthenticationSuccessful();
     }).catchError((error) {
       addState(PhoneAuthState.Error);
-      addStatus('Something has gone wrong, please try later(signInWithPhoneNumber) $error');
+      addStatus(
+          'Something has gone wrong, please try later(signInWithPhoneNumber) $error');
     });
   }
 
   static onAuthenticationSuccessful() {}
 
-  static addState(PhoneAuthState state){
+  static addState(PhoneAuthState state) {
     phoneAuthState.sink.add(state);
   }
 

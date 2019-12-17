@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../services/code.dart';
 import 'package:hyperloop/utils/widgets.dart';
 
-class PhoneAuthVerify extends StatefulWidget {
+import '../services/code.dart';
 
+class PhoneAuthVerify extends StatefulWidget {
   Color cardBackgroundColor = Color(0xFFFCA967);
   String logo = 'images/ctu.jpg';
   String appName = "Hyperloop";
@@ -26,11 +26,11 @@ class _PhoneAuthVerifyState extends State<PhoneAuthVerify> {
   @override
   void initState() {
     print(FirebasePhoneAuth.phoneAuthState.isClosed);
-    FirebasePhoneAuth.phoneAuthState.close().whenComplete((){
+    FirebasePhoneAuth.phoneAuthState.close().whenComplete(() {
       FirebasePhoneAuth.phoneAuthState.sink.close();
 
       print(FirebasePhoneAuth.phoneAuthState.isClosed);
-      if(FirebasePhoneAuth.phoneAuthState.isClosed)
+      if (FirebasePhoneAuth.phoneAuthState.isClosed)
         FirebasePhoneAuth.phoneAuthState.stream
             .listen((PhoneAuthState state) => print(state));
     });
@@ -69,41 +69,41 @@ class _PhoneAuthVerifyState extends State<PhoneAuthVerify> {
    *    Card -> FutureBuilder -> Column()
    */
   Widget _getBody() => Card(
-    color: widget.cardBackgroundColor,
-    elevation: 2.0,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-    child: Container(
-      height: _height * 9 / 10,
-      width: _width * 9 / 10,
-      child: _getColumnBody(),
-    ),
-  );
+        color: widget.cardBackgroundColor,
+        elevation: 2.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        child: Container(
+          height: _height * 9 / 10,
+          width: _width * 9 / 10,
+          child: _getColumnBody(),
+        ),
+      );
 
   Widget _getColumnBody() => Column(
-    children: <Widget>[
-      //  Logo: scaling to occupy 2 parts of 10 in the whole height of device
-      Padding(
-        padding: EdgeInsets.all(_fixedPadding),
-        child: PhoneAuthWidgets.getLogo(
-            logoPath: widget.logo, height: _height * 0.2),
-      ),
-
-      // AppName:
-      Text(widget.appName,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: 24.0,
-              fontWeight: FontWeight.w700)),
-
-      SizedBox(height: 20.0),
-
-      Row(
         children: <Widget>[
-          SizedBox(width: 20.0),
-          Expanded(
-            child: RichText(
-                text: TextSpan(children: [
+          //  Logo: scaling to occupy 2 parts of 10 in the whole height of device
+          Padding(
+            padding: EdgeInsets.all(_fixedPadding),
+            child: PhoneAuthWidgets.getLogo(
+                logoPath: widget.logo, height: _height * 0.2),
+          ),
+
+          // AppName:
+          Text(widget.appName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.w700)),
+
+          SizedBox(height: 20.0),
+
+          Row(
+            children: <Widget>[
+              SizedBox(width: 20.0),
+              Expanded(
+                child: RichText(
+                    text: TextSpan(children: [
                   TextSpan(
                       text: 'Please enter the ',
                       style: TextStyle(
@@ -119,72 +119,72 @@ class _PhoneAuthVerifyState extends State<PhoneAuthVerify> {
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.w400)),
                 ])),
+              ),
+              SizedBox(width: 20.0),
+            ],
           ),
-          SizedBox(width: 20.0),
-        ],
-      ),
 
-      SizedBox(height: 15.0),
+          SizedBox(height: 15.0),
 
-      Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          getField("1", focusNode1),
-          SizedBox(width: 5.0),
-          getField("2", focusNode2),
-          SizedBox(width: 5.0),
-          getField("3", focusNode3),
-          SizedBox(width: 5.0),
-          getField("4", focusNode4),
-          SizedBox(width: 5.0),
-          getField("5", focusNode5),
-          SizedBox(width: 5.0),
-          getField("6", focusNode6),
-          SizedBox(width: 5.0),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              getField("1", focusNode1),
+              SizedBox(width: 5.0),
+              getField("2", focusNode2),
+              SizedBox(width: 5.0),
+              getField("3", focusNode3),
+              SizedBox(width: 5.0),
+              getField("4", focusNode4),
+              SizedBox(width: 5.0),
+              getField("5", focusNode5),
+              SizedBox(width: 5.0),
+              getField("6", focusNode6),
+              SizedBox(width: 5.0),
+            ],
+          )
         ],
-      )
-    ],
-  );
+      );
 
   Widget getField(String key, FocusNode fn) => SizedBox(
-    height: 40.0,
-    width: 35.0,
-    child: TextField(
-      key: Key(key),
-      expands: false,
-      autofocus: key.contains("1") ? true : false,
-      focusNode: fn,
-      onChanged: (String value) {
-        if (value.length == 1) {
-          code += value;
-          switch (code.length) {
-            case 1:
-              FocusScope.of(context).requestFocus(focusNode2);
-              break;
-            case 2:
-              FocusScope.of(context).requestFocus(focusNode3);
-              break;
-            case 3:
-              FocusScope.of(context).requestFocus(focusNode4);
-              break;
-            case 4:
-              FocusScope.of(context).requestFocus(focusNode5);
-              break;
-            case 5:
-              FocusScope.of(context).requestFocus(focusNode6);
-              break;
-            default:
-              FocusScope.of(context).unfocus();
-              break;
-          }
-        }
-      },
-      maxLengthEnforced: false,
-      textAlign: TextAlign.center,
-      cursorColor: Colors.white,
-      keyboardType: TextInputType.number,
-      style: TextStyle(
-          fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.white),
+        height: 40.0,
+        width: 35.0,
+        child: TextField(
+          key: Key(key),
+          expands: false,
+          autofocus: key.contains("1") ? true : false,
+          focusNode: fn,
+          onChanged: (String value) {
+            if (value.length == 1) {
+              code += value;
+              switch (code.length) {
+                case 1:
+                  FocusScope.of(context).requestFocus(focusNode2);
+                  break;
+                case 2:
+                  FocusScope.of(context).requestFocus(focusNode3);
+                  break;
+                case 3:
+                  FocusScope.of(context).requestFocus(focusNode4);
+                  break;
+                case 4:
+                  FocusScope.of(context).requestFocus(focusNode5);
+                  break;
+                case 5:
+                  FocusScope.of(context).requestFocus(focusNode6);
+                  break;
+                default:
+                  FocusScope.of(context).unfocus();
+                  break;
+              }
+            }
+          },
+          maxLengthEnforced: false,
+          textAlign: TextAlign.center,
+          cursorColor: Colors.white,
+          keyboardType: TextInputType.number,
+          style: TextStyle(
+              fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.white),
 //          decoration: InputDecoration(
 //              contentPadding: const EdgeInsets.only(
 //                  bottom: 10.0, top: 10.0, left: 4.0, right: 4.0),
@@ -195,6 +195,6 @@ class _PhoneAuthVerifyState extends State<PhoneAuthVerify> {
 //              border: OutlineInputBorder(
 //                  borderRadius: BorderRadius.circular(5.0),
 //                  borderSide: BorderSide(color: Colors.white))),
-    ),
-  );
+        ),
+      );
 }
