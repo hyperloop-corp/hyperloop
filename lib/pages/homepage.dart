@@ -3,6 +3,10 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hyperloop/data_models/place.dart';
+import 'package:hyperloop/pages/place_picker.dart';
+import 'package:hyperloop/services/map_route_util.dart';
 import 'package:hyperloop/utils/drawer.dart';
 import 'package:hyperloop/utils/map.dart';
 
@@ -31,6 +35,12 @@ class _HomePageState extends State<HomePage>
 
   double lerp(double min, double max) =>
       lerpDouble(min, max, _controller.value);
+
+  Place fromAddress;
+  Place toAddress;
+  List<Marker> markers = [];
+  List<Polyline> routes = [];
+  MapUtil mapUtil = MapUtil();
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +72,7 @@ class _HomePageState extends State<HomePage>
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            "Plan you today's trip",
+                            "Plan your today's trip",
                             style: TextStyle().copyWith(
                                 letterSpacing: 1.9,
                                 fontSize: 22,
@@ -74,14 +84,16 @@ class _HomePageState extends State<HomePage>
                           height: 50,
                           child: FlatButton(
                             onPressed: () {
-//                            Navigator.of(context).push(MaterialPageRoute(
-//                                builder: (context) => RidePickerPage(
-//                                    fromAddress == null ? "" : fromAddress.name,
-//                                        (place, isFrom) {
-//                                      widget.onSelected(place, isFrom);
-//                                      fromAddress = place;
-//                                      setState(() {});
-//                                    }, true)));
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => PlacePicker(
+                                          fromAddress == null
+                                              ? ""
+                                              : fromAddress.name,
+                                          (place, isFrom) {
+                                        fromAddress = place;
+                                        _plotMarker(place, isFrom);
+                                        setState(() {});
+                                      }, true)));
                             },
                             child: SizedBox(
                               width: double.infinity,
@@ -118,7 +130,9 @@ class _HomePageState extends State<HomePage>
                                     padding: EdgeInsets.only(
                                         left: 40.0, right: 50.0),
                                     child: Text(
-                                      "Source Bus Stop",
+                                      fromAddress == null
+                                          ? "Source Bus Stop"
+                                          : fromAddress.name,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                           fontSize: 16, color: Colors.white70),
@@ -135,14 +149,16 @@ class _HomePageState extends State<HomePage>
                           height: 50,
                           child: FlatButton(
                             onPressed: () {
-//                            Navigator.of(context).push(MaterialPageRoute(
-//                                builder: (context) =>
-//                                    RidePickerPage(toAddress == null ? '' : toAddress.name,
-//                                            (place, isFrom) {
-//                                          widget.onSelected(place, isFrom);
-//                                          toAddress = place;
-//                                          setState(() {});
-//                                        }, false)));
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => PlacePicker(
+                                          toAddress == null
+                                              ? ''
+                                              : toAddress.name,
+                                          (place, isFrom) {
+                                        toAddress = place;
+                                        _plotMarker(place, isFrom);
+                                        setState(() {});
+                                      }, false)));
                             },
                             child: SizedBox(
                               width: double.infinity,
@@ -179,7 +195,9 @@ class _HomePageState extends State<HomePage>
                                     padding: EdgeInsets.only(
                                         left: 40.0, right: 50.0),
                                     child: Text(
-                                      "Destination Bus Stop",
+                                      toAddress == null
+                                          ? "Destination Bus Stop"
+                                          : toAddress.name,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                           fontSize: 16, color: Colors.white70),
@@ -192,9 +210,9 @@ class _HomePageState extends State<HomePage>
                         ),
                         _controller.status == AnimationStatus.completed
                             ? Padding(
-                              padding: const EdgeInsets.only(top:15.0),
-                              child: _builtSubmitButton(),
-                            )
+                                padding: const EdgeInsets.only(top: 15.0),
+                                child: _builtSubmitButton(),
+                              )
                             : Container(),
                       ],
                     ),
@@ -212,7 +230,79 @@ class _HomePageState extends State<HomePage>
             this.title = selectedTab;
           });
         }),
-        body: Stack(children: <Widget>[HyperLoopMap()]));
+        body: Stack(children: <Widget>[HyperLoopMap(markers, routes)]));
+  }
+
+  void _plotMarker(Place place, bool isFrom) {
+    String mkId = isFrom == true ? "FromAddress" : "toAddress";
+
+    markers.remove(mkId);
+
+    //_mapController.clearMarkers();
+
+    Marker marker = Marker(
+      markerId: MarkerId(mkId),
+      draggable: false,
+      position: LatLng(place.lat, place.lng),
+      infoWindow: InfoWindow(title: mkId),
+      icon: (mkId == "FromAddress")
+          ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan)
+          : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+    );
+
+    setState(() {
+      if (mkId == "FromAddress") {
+        if (markers.isEmpty) {
+          markers.add(marker);
+        } else
+          markers[0] = (marker);
+      } else if (mkId == "toAddress") {
+        markers.add(marker);
+      }
+    });
+
+    addPolyline();
+  }
+
+  addPolyline() async {
+    //routes.clear();
+    if (markers.length > 1) {
+      mapUtil
+          .getRoutePath(
+              LatLng(
+                  markers[0].position.latitude, markers[0].position.longitude),
+              LatLng(
+                  markers[1].position.latitude, markers[1].position.longitude))
+          .then((locations) {
+        List<LatLng> path = new List();
+
+        locations.forEach((location) {
+          path.add(new LatLng(location.latitude, location.longitude));
+        });
+
+        final Polyline polyline = Polyline(
+          polylineId: PolylineId(markers[1].position.latitude.toString() +
+              markers[1].position.longitude.toString()),
+          consumeTapEvents: true,
+          color: Colors.grey,
+          width: 4,
+          points: path,
+        );
+
+        setState(() {
+          routes.add(polyline);
+        });
+      });
+
+      LatLngBounds bound = LatLngBounds(
+          southwest: LatLng(
+              markers[0].position.latitude, markers[0].position.longitude),
+          northeast: LatLng(
+              markers[1].position.latitude, markers[1].position.longitude));
+      CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 50);
+
+      // TODO to move the camera towards Bounds
+    }
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
