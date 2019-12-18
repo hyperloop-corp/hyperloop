@@ -16,7 +16,7 @@ class TravelTicket extends StatelessWidget {
       child: FlutterTicketWidget(
         width: 10.0,
         height: 100.0,
-        color: Colors.lightBlueAccent[100],
+        color: Colors.grey[350],
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
@@ -29,12 +29,10 @@ class TravelTicket extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Icon(
-                            Icons.all_inclusive,
-                            size: 100.0,
-                            color: Colors.white,
-                            semanticLabel: 'Hyperloop',
-                          )
+                          Image.asset(
+                            'images/logo.png',
+                            height: 100,
+                          ),
                         ],
                       ),
                       SizedBox(height: 5.0),
@@ -47,7 +45,7 @@ class TravelTicket extends StatelessWidget {
                               Text(
                                 'From',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.grey[900],
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w500),
                               ),
@@ -55,7 +53,7 @@ class TravelTicket extends StatelessWidget {
                                 child: Text(
                                   from,
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.grey[900],
                                       fontSize: 25.0,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -71,7 +69,7 @@ class TravelTicket extends StatelessWidget {
                               Text(
                                 'To',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.grey[900],
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w500),
                               ),
@@ -79,7 +77,7 @@ class TravelTicket extends StatelessWidget {
                                 child: Text(
                                   to,
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.grey[900],
                                       fontSize: 25.0,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -98,7 +96,7 @@ class TravelTicket extends StatelessWidget {
                               Text(
                                 'Distance in Km',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.grey[900],
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w500),
                               ),
@@ -106,7 +104,7 @@ class TravelTicket extends StatelessWidget {
                                 child: Text(
                                   distance.toString(),
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.grey[900],
                                       fontSize: 25.0,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -120,7 +118,7 @@ class TravelTicket extends StatelessWidget {
                               Text(
                                 'Route',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.grey[900],
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w500),
                               ),
@@ -128,7 +126,7 @@ class TravelTicket extends StatelessWidget {
                                 child: Text(
                                   route,
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.grey[900],
                                       fontSize: 25.0,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -147,7 +145,7 @@ class TravelTicket extends StatelessWidget {
                               Text(
                                 'Fare in Rs',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.grey[900],
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w500),
                               ),
@@ -155,7 +153,7 @@ class TravelTicket extends StatelessWidget {
                                 child: Text(
                                   fare.toString(),
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.grey[900],
                                       fontSize: 25.0,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -171,7 +169,7 @@ class TravelTicket extends StatelessWidget {
                               Text(
                                 'ETA in min',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.grey[900],
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w500),
                               ),
@@ -179,7 +177,7 @@ class TravelTicket extends StatelessWidget {
                                 child: Text(
                                   eta.toString(),
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.grey[900],
                                       fontSize: 25.0,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -198,7 +196,7 @@ class TravelTicket extends StatelessWidget {
                               Text(
                                 'Ticket Expiry in',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.grey[900],
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.w500),
                               ),
@@ -206,7 +204,7 @@ class TravelTicket extends StatelessWidget {
                                 child: Text(
                                   ttl > 0 ? '$ttl minutes' : 'Expired!',
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.grey[900],
                                       fontSize: 25.0,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -253,7 +251,9 @@ class _FlutterTicketWidgetState extends State<FlutterTicketWidget> {
         height: widget.height,
         child: widget.child,
         decoration: BoxDecoration(
-            color: widget.color, borderRadius: BorderRadius.circular(20.0)),
+            color: widget.color,
+            border: Border.all(color: Colors.grey[900], width: 3.0),
+            borderRadius: BorderRadius.circular(20.0)),
       ),
     );
   }
