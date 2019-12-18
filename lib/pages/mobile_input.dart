@@ -63,7 +63,7 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
     final PhoneCodeSent smsOTPSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
       smsOTPDialog(context).then((value) {
-        print('sign in');
+        print('In verify phone $value');
       });
     };
     try {
@@ -123,6 +123,7 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
                     onPressed: () {
                       _auth.currentUser().then((user) {
                         if (user != null) {
+                          print('User was already there');
                           Navigator.of(context).pop();
                           Navigator.of(context).pushReplacementNamed('/home');
                         } else {
@@ -148,6 +149,7 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
         final FirebaseUser user = result.user;
         final FirebaseUser currentUser = await _auth.currentUser();
         assert(user.uid == currentUser.uid);
+        print('Manual code entry');
         Navigator.of(context).pop();
         Navigator.of(context).pushReplacementNamed('/home');
       });
