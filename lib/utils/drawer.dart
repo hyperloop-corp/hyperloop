@@ -127,7 +127,9 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
               if(value == ConfirmAction.ACCEPT){
                 Navigator.pushReplacementNamed(context, '/');
               }
-              Navigator.pop(context);
+              else{
+                Navigator.pop(context);
+              }
             },
           ),
           ListTile(
