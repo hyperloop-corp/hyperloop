@@ -13,7 +13,7 @@ void main() => runApp(MaterialApp(
             body1: TextStyle(
                 color: Colors.white, fontFamily: 'ProximaNova', fontSize: 20),
           )),
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
         '/': (context) => Landing(),
         '/home': (context) => HomePage(),

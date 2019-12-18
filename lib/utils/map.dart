@@ -7,6 +7,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class HyperLoopMap extends StatefulWidget {
+  final List<Marker> markers;
+  final List<Polyline> routes;
+
+  HyperLoopMap(this.markers, this.routes);
+
   @override
   State<StatefulWidget> createState() => _HyperLoopMapState();
 }
@@ -102,7 +107,9 @@ class _HyperLoopMapState extends State<HyperLoopMap> {
       GoogleMap(
         mapType: MapType.normal,
         myLocationEnabled: true,
-        myLocationButtonEnabled: false,
+        myLocationButtonEnabled: true,
+        markers: Set<Marker>.of(widget.markers),
+        polylines: Set<Polyline>.of(widget.routes),
         initialCameraPosition: _initialCamera,
         onMapCreated: (GoogleMapController controller) {
           _controller.complete(controller);
@@ -115,11 +122,10 @@ class _HyperLoopMapState extends State<HyperLoopMap> {
           child: FloatingActionButton(
             onPressed: () async {
               debugPrint(_currentCameraPosition.toString());
-               _controller.future.then((controller){
-                 controller.animateCamera(
-                     CameraUpdate.newCameraPosition(_currentCameraPosition));
-               });
-
+              _controller.future.then((controller) {
+                controller.animateCamera(
+                    CameraUpdate.newCameraPosition(_currentCameraPosition));
+              });
             },
             child: Icon(Icons.my_location),
           ),
