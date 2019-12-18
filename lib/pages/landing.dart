@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,27 @@ class Landing extends StatefulWidget {
 }
 
 class _LandingState extends State<Landing> {
+
+  Future<void> navigateToNextScreen() async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    try {
+      String route;
+      route = await _auth.currentUser().then((user){
+        if(user != null){
+          return 'home';
+        }
+        else{
+          return 'mobile_input';
+        }
+      });
+      assert(route != null);
+      Navigator.pushReplacementNamed(context, '/$route');
+    } on Exception catch (e) {
+      // TODO
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,8 +60,8 @@ class _LandingState extends State<Landing> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/mobile_input');
+        onPressed: () async {
+          await navigateToNextScreen();
         },
         child: Icon(
           Icons.navigate_next,
