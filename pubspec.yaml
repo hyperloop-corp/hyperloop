@@ -33,6 +33,7 @@ dependencies:
   firebase_auth:
   cloud_firestore:
   google_maps_webservice: ^0.0.14
+  qr_flutter: ^3.0.1
 
 dev_dependencies:
   flutter_test:
