@@ -1,219 +1,248 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:hyperloop/pages/qr_generator.dart';
 
 class TravelTicket extends StatelessWidget {
   final String from, to, route;
   final double distance, fare, ttl, eta;
 
-  TravelTicket({this.from, this.to,this.route, this.distance, this.fare, this.ttl, this.eta});
+  TravelTicket(
+      {this.from,
+      this.to,
+      this.route,
+      this.distance,
+      this.fare,
+      this.ttl,
+      this.eta});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-      const EdgeInsets.symmetric(vertical: 120, horizontal: 60),
+      padding: const EdgeInsets.symmetric(vertical: 120, horizontal: 60),
       child: FlutterTicketWidget(
         width: 10.0,
         height: 100.0,
         color: Colors.grey[350],
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
+                Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Image.asset(
-                            'images/logo.png',
-                            height: 100,
-                          ),
-                        ],
+                      Image.asset(
+                        'images/logo.png',
+                        height: 100,
                       ),
-                      SizedBox(height: 5.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    ],
+                  ),
+                  SizedBox(height: 5.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                'From',
-                                style: TextStyle(
-                                    color: Colors.grey[900],
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  from,
-                                  style: TextStyle(
-                                      color: Colors.grey[900],
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
+                          Text(
+                            'From',
+                            style: TextStyle(
+                                color: Colors.grey[900],
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500),
                           ),
-                          SizedBox(
-                            width: 30.0,
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                'To',
-                                style: TextStyle(
-                                    color: Colors.grey[900],
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  to,
-                                  style: TextStyle(
-                                      color: Colors.grey[900],
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
+                          Flexible(
+                            child: Text(
+                              from,
+                              style: TextStyle(
+                                  color: Colors.grey[900],
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           )
                         ],
                       ),
-                      SizedBox(height: 15.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                'Distance in Km',
-                                style: TextStyle(
-                                    color: Colors.grey[900],
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  distance.toString(),
-                                  style: TextStyle(
-                                      color: Colors.grey[900],
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
-                          ),
-                          SizedBox(width: 30.0,),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                'Route',
-                                style: TextStyle(
-                                    color: Colors.grey[900],
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  route,
-                                  style: TextStyle(
-                                      color: Colors.grey[900],
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
-                          ),
-                        ],
+                      SizedBox(
+                        width: 30.0,
                       ),
-                      SizedBox(height: 15.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                'Fare in Rs',
-                                style: TextStyle(
-                                    color: Colors.grey[900],
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  fare.toString(),
-                                  style: TextStyle(
-                                      color: Colors.grey[900],
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
+                          Text(
+                            'To',
+                            style: TextStyle(
+                                color: Colors.grey[900],
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500),
                           ),
-                          SizedBox(
-                            width: 30.0,
+                          Flexible(
+                            child: Text(
+                              to,
+                              style: TextStyle(
+                                  color: Colors.grey[900],
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 15.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            'Distance in Km',
+                            style: TextStyle(
+                                color: Colors.grey[900],
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500),
                           ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                'ETA in min',
-                                style: TextStyle(
-                                    color: Colors.grey[900],
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  eta.toString(),
-                                  style: TextStyle(
-                                      color: Colors.grey[900],
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
+                          Flexible(
+                            child: Text(
+                              distance.toString(),
+                              style: TextStyle(
+                                  color: Colors.grey[900],
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           )
                         ],
                       ),
-                      SizedBox(height: 15.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      SizedBox(
+                        width: 7.0,
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                'Ticket Expiry in',
-                                style: TextStyle(
-                                    color: Colors.grey[900],
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  ttl > 0 ? '$ttl minutes' : 'Expired!',
-                                  style: TextStyle(
-                                      color: Colors.grey[900],
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
+                          Text(
+                            'Route',
+                            style: TextStyle(
+                                color: Colors.grey[900],
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500),
                           ),
+                          Flexible(
+                            child: Text(
+                              route,
+                              overflow: TextOverflow.fade,
+                              style: TextStyle(
+                                  color: Colors.grey[900],
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          )
                         ],
                       ),
-                    ]),
+                    ],
+                  ),
+                  SizedBox(height: 15.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            'Fare in Rs',
+                            style: TextStyle(
+                                color: Colors.grey[900],
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          Flexible(
+                            child: Text(
+                              fare.toString(),
+                              style: TextStyle(
+                                  color: Colors.grey[900],
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        width: 30.0,
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            'ETA in min',
+                            style: TextStyle(
+                                color: Colors.grey[900],
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          Flexible(
+                            child: Text(
+                              eta.toString(),
+                              style: TextStyle(
+                                  color: Colors.grey[900],
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 15.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            'Ticket Expiry in',
+                            style: TextStyle(
+                                color: Colors.grey[900],
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          Flexible(
+                            child: Text(
+                              ttl > 0 ? '$ttl minutes' : 'Expired!',
+                              style: TextStyle(
+                                  color: Colors.grey[900],
+                                  fontSize: 25.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                  ttl > 0
+                      ? RawMaterialButton(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                child: QrCodeGeneratorWidget());
+                          },
+                          splashColor: Colors.blue,
+                          fillColor: Colors.blueAccent,
+                          elevation: 5.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          child: Container(
+                              child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 5),
+                            child: Text("Get QR Code"),
+                          )),
+                        )
+                      : SizedBox.shrink(),
+                ]),
               ],
             ),
           ),

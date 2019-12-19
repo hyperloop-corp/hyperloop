@@ -81,6 +81,7 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
             title: Text('My Tickets'),
             onTap: () {
               widget.onTabSelect('My Tickets');
+              Navigator.pop(context);
               Navigator.push(
                   context, MaterialPageRoute(builder: (context) => Ticket()));
             },
