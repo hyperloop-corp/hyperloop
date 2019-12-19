@@ -84,6 +84,7 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
           },
           verificationFailed: (AuthException e) {
             print('${e.message}');
+            errorMessage = e.message;
           });
     } catch (error) {
       handleError(error);
@@ -108,7 +109,7 @@ class _PhoneAuthGetPhoneState extends State<PhoneAuthGetPhone> {
                         this.smsOTP = value;
                       },
                     ),
-                    (errorMessage != ''
+                    (errorMessage.length > 0
                         ? Text(
                             errorMessage,
                             style: TextStyle(color: Colors.red),
