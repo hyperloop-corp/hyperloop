@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hyperloop/pages/homepage.dart';
+import 'package:hyperloop/pages/nearby.dart';
 import 'package:hyperloop/pages/ticket.dart';
 
 enum ConfirmAction { CANCEL, ACCEPT }
@@ -62,10 +64,18 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
           ),
           ListTile(
             leading: Icon(Icons.place),
+            title: Text('Home'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.place),
             title: Text('Nearby'),
             onTap: () {
-              widget.onTabSelect('Nearby');
               Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Nearby()));
             },
           ),
           ListTile(
@@ -80,10 +90,8 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
             leading: Icon(Icons.view_headline),
             title: Text('My Tickets'),
             onTap: () {
-              widget.onTabSelect('My Tickets');
               Navigator.pop(context);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Ticket()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Ticket()));
             },
           ),
           ListTile(
