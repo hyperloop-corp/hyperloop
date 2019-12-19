@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:hyperloop/pages/qr_generator.dart';
+import 'package:hyperloop/utils/qr_generator.dart';
 
 class TravelTicket extends StatelessWidget {
   final String from, to, route;
@@ -227,6 +227,7 @@ class TravelTicket extends StatelessWidget {
                           onPressed: () {
                             showDialog(
                                 context: context,
+                                barrierDismissible: false,
                                 child: QrCodeGeneratorWidget());
                           },
                           splashColor: Colors.blue,

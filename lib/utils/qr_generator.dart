@@ -59,11 +59,14 @@ class _QrCodeGeneratorState extends State<QrCodeGeneratorWidget> {
                 decoration: BoxDecoration(
                     border: Border.all(color: Colors.blue, width: 5.0),
                     borderRadius: BorderRadius.circular(15.0),
-                    color: Colors.white70),
-                child: QrImage(
-                  data: widget.message.toString(),
-                  errorCorrectionLevel: QrErrorCorrectLevel.H,
-                  foregroundColor: Color(0xff03291c),
+                    color: Colors.white),
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: QrImage(
+                    data: widget.message.toString(),
+                    errorCorrectionLevel: QrErrorCorrectLevel.H,
+                    foregroundColor: Color(0xff03291c),
+                  ),
                 ),
               ),
             ),
