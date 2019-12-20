@@ -53,3 +53,4 @@ flutter:
   assets:
     - images/
     - data/
+    - android/keys.properties
