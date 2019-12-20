@@ -22,10 +22,10 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
   GoogleMapController mapController;
   PlacesDetailsResponse place;
   Set<Marker> markers = {};
+  GoogleMapsPlaces _places;
   bool isLoading = false;
   String errorLoading;
   var kGoogleApiKey = "";
-  GoogleMapsPlaces _places;
 
   @override
   void initState() {
@@ -36,7 +36,6 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
     }).catchError((error) {
       print(error);
     });
-
     super.initState();
   }
 
@@ -73,6 +72,7 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
             height: 200.0,
             child: GoogleMap(
               onMapCreated: _onMapCreated,
+              markers: this.markers,
               myLocationButtonEnabled: true,
               myLocationEnabled: true,
               initialCameraPosition: CameraPosition(target: LatLng(0.0, 0.0)),
@@ -107,12 +107,12 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
         if (place.status == "OK") {
           this.place = place;
           final location = place.result.geometry.location;
+
           Marker mar = new Marker(
               markerId:
                   MarkerId(location.lat.toString() + location.lng.toString()),
               position: LatLng(location.lat, location.lng));
           markers.add(mar);
-          markers = markers;
         } else {
           this.errorLoading = place.errorMessage;
         }

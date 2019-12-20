@@ -152,9 +152,7 @@ class _Nearby extends State<Nearby> {
                 title: f.name,
               ));
           markers.add(markerOptions);
-          markers = markers;
         });
-//        markers = marker;
       } else {
         this.errorMessage = result.errorMessage;
       }
@@ -188,7 +186,7 @@ class _Nearby extends State<Nearby> {
     }
   }
 
-  Future<Null> showDetailPlace(String placeId) async {
+  Future<void> showDetailPlace(String placeId) async {
     if (placeId != null) {
       Navigator.push(
         context,
