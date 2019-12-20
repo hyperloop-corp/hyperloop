@@ -8,7 +8,6 @@ class QrCodeGeneratorWidget extends StatefulWidget {
   final destinationLat;
   final destinationLong;
   final price;
-  var message;
 
   QrCodeGeneratorWidget(
       {Key key,
@@ -24,11 +23,11 @@ class QrCodeGeneratorWidget extends StatefulWidget {
 
 class _QrCodeGeneratorState extends State<QrCodeGeneratorWidget> {
   FirebaseUser user;
-
+  var message;
   void _getUser() async {
     await FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
       setState(() {
-        widget.message = {
+        this.message = {
           'sourceLat': '30.79467',
           'sourceLong': '76.64875',
           'destinationLat': '30.695895',
@@ -42,8 +41,8 @@ class _QrCodeGeneratorState extends State<QrCodeGeneratorWidget> {
 
   @override
   void initState() {
-    super.initState();
     _getUser();
+    super.initState();
   }
 
   @override
@@ -62,7 +61,7 @@ class _QrCodeGeneratorState extends State<QrCodeGeneratorWidget> {
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: QrImage(
-                    data: widget.message.toString(),
+                    data: this.message.toString(),
                     errorCorrectionLevel: QrErrorCorrectLevel.H,
                     foregroundColor: Color(0xff03291c),
                   ),

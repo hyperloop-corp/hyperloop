@@ -19,12 +19,12 @@ class Ticket extends StatelessWidget {
           physics: BouncingScrollPhysics(),
           children: [
             TravelTicket(
-                from: 'PGI',
-                to: 'PEC',
-                distance: 1.00,
-                fare: 5.00,
+                from: 'Phase 11',
+                to: 'PGI',
+                distance: 14.40,
+                fare: 30.00,
                 ttl: 30.00,
-                eta: 10.00,
+                eta: 75.00,
                 route: '39-Down'),
             TravelTicket(
                 from: 'ISBT-43',
