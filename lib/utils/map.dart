@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -114,22 +115,6 @@ class _HyperLoopMapState extends State<HyperLoopMap> {
           _controller.complete(controller);
         },
       ),
-//      Padding(
-//        padding: const EdgeInsets.all(16.0),
-//        child: Align(
-//          alignment: Alignment.bottomRight,
-//          child: FloatingActionButton(
-//            onPressed: () async {
-//              debugPrint(_currentCameraPosition.toString());
-//              _controller.future.then((controller) {
-//                controller.animateCamera(
-//                    CameraUpdate.newCameraPosition(_currentCameraPosition));
-//              });
-//            },
-//            child: Icon(Icons.my_location),
-//          ),
-//        ),
-//      )
     ]);
   }
 }

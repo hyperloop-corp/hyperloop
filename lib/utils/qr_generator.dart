@@ -29,11 +29,11 @@ class _QrCodeGeneratorState extends State<QrCodeGeneratorWidget> {
     await FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
       setState(() {
         widget.message = {
-          'sourceLat': '${widget.sourceLat}',
-          'sourceLong': '${widget.sourceLong}',
-          'destinationLat': '${widget.destinationLat}',
-          'destinationLong': '${widget.destinationLong}',
-          'price': '${widget.price}',
+          'sourceLat': '30.79467',
+          'sourceLong': '76.64875',
+          'destinationLat': '30.695895',
+          'destinationLong': '76.078478',
+          'price': '30',
           'user_id': '${user.uid}'
         };
       });
@@ -51,7 +51,6 @@ class _QrCodeGeneratorState extends State<QrCodeGeneratorWidget> {
     return Container(
       child: Column(
         children: <Widget>[
-
           Expanded(
             child: Center(
               child: Container(
@@ -81,9 +80,17 @@ class _QrCodeGeneratorState extends State<QrCodeGeneratorWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Icon(Icons.close, color: Colors.white,),
-                  SizedBox(width: 5,),
-                  Text("CLOSE", style: TextStyle(color: Colors.white70, fontSize: 22),),
+                  Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    "CLOSE",
+                    style: TextStyle(color: Colors.white70, fontSize: 22),
+                  ),
                 ],
               ),
               onPressed: () {

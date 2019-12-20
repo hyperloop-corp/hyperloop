@@ -1,20 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:hyperloop/templates/travelTicket.dart';
 import 'package:hyperloop/utils/drawer.dart';
 
 class Ticket extends StatelessWidget {
   final controller = PageController(initialPage: 0);
   String title = 'My Tickets';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(this.title),
       ),
-      drawer: HyperloopDrawer(onTabSelect: (selectedTab) {
-      }),
+      drawer: HyperloopDrawer(onTabSelect: (selectedTab) {}),
       body: PageView(
           controller: controller,
           physics: BouncingScrollPhysics(),
