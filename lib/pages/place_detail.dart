@@ -1,14 +1,14 @@
-import 'package:google_maps_webservice/places.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
 
 Future<String> loadAsset() async {
   return await rootBundle.loadString('android/keys.properties');
 }
 
 class PlaceDetailWidget extends StatefulWidget {
-  String placeId;
+  final String placeId;
 
   PlaceDetailWidget({this.placeId});
 
@@ -22,10 +22,10 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
   GoogleMapController mapController;
   PlacesDetailsResponse place;
   Set<Marker> markers = {};
-  var kGoogleApiKey = "";
   GoogleMapsPlaces _places;
   bool isLoading = false;
   String errorLoading;
+  var kGoogleApiKey = "";
 
   @override
   void initState() {
@@ -100,13 +100,15 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
 
     PlacesDetailsResponse place =
         await _places.getDetailsByPlaceId(widget.placeId);
+
     if (mounted) {
       setState(() {
         this.isLoading = false;
         if (place.status == "OK") {
           this.place = place;
           final location = place.result.geometry.location;
-          final mar = Marker(
+
+          Marker mar = new Marker(
               markerId:
                   MarkerId(location.lat.toString() + location.lng.toString()),
               position: LatLng(location.lat, location.lng));

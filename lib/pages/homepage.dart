@@ -137,7 +137,8 @@ class _HomePageState extends State<HomePage>
                                             : fromAddress.name,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                            fontSize: 16, color: Colors.white70),
+                                            fontSize: 16,
+                                            color: Colors.white70),
                                       ),
                                     )
                                   ],
@@ -145,7 +146,9 @@ class _HomePageState extends State<HomePage>
                               ),
                             ),
                           ),
-                          Divider(color: Colors.white70,),
+                          Divider(
+                            color: Colors.white70,
+                          ),
                           Container(
                             width: double.infinity,
                             height: 50,
@@ -202,7 +205,8 @@ class _HomePageState extends State<HomePage>
                                             : toAddress.name,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                            fontSize: 16, color: Colors.white70),
+                                            fontSize: 16,
+                                            color: Colors.white70),
                                       ),
                                     )
                                   ],
@@ -308,6 +312,12 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+//  void latLongBoundFunction(){
+//    this.mapController.animateCamera(u2).then((void v){
+//      check(u2,this.mapController);
+//    });
+//  }
+
   void _handleDragUpdate(DragUpdateDetails details) {
     _controller.value -= details.primaryDelta / maxHeight;
   }
@@ -331,6 +341,8 @@ class _HomePageState extends State<HomePage>
   Widget _builtSubmitButton() {
     return SubmitButton(
       isVisible: _controller.status == AnimationStatus.completed,
+      fromAddress: fromAddress,
+      toAddress: toAddress,
     );
   }
 }
@@ -338,7 +350,11 @@ class _HomePageState extends State<HomePage>
 class SubmitButton extends StatelessWidget {
   final bool isVisible;
 
-  const SubmitButton({Key key, this.isVisible}) : super(key: key);
+  final Place fromAddress;
+  final Place toAddress;
+
+  SubmitButton({Key key, this.isVisible, this.fromAddress, this.toAddress})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +362,25 @@ class SubmitButton extends StatelessWidget {
       opacity: isVisible ? 1 : 0,
       duration: Duration(milliseconds: 1000),
       child: RawMaterialButton(
-        onPressed: () => {},
+        onPressed: () {
+          if (fromAddress == null || toAddress == null) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    Navigator.of(context).pop(true);
+                  });
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                    title: Container(child: Text('Kindly Select Stops first!')),
+                  );
+                });
+          } else {
+
+              Navigator.pushNamed(context, '/busesShow');
+          }
+        },
         splashColor: Colors.white,
         fillColor: Colors.orange,
         elevation: 5.0,
@@ -356,7 +390,7 @@ class SubmitButton extends StatelessWidget {
             padding: const EdgeInsets.all(5.0),
             child: Container(
                 child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 60.0),
+              padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 20),
               child: Text("Search for Buses"),
             ))),
       ),
