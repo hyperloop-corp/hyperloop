@@ -1,17 +1,20 @@
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart' as Location;
 import 'package:google_maps_webservice/places.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hyperloop/utils/drawer.dart';
 import 'package:location/location.dart' as LocationManager;
 import 'package:location/location.dart';
+
 import 'place_detail.dart';
 
-// TODO: ADD your key here before running
-const kGoogleApiKey = "YOUR_KEY_HERE";
-GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
+Future<String> loadAsset() async {
+  return await rootBundle.loadString('android/keys.properties');
+}
 
 class Nearby extends StatefulWidget {
   @override
@@ -26,7 +29,21 @@ class _Nearby extends State<Nearby> {
   List<PlacesSearchResult> places = [];
   bool isLoading = false;
   String errorMessage;
-  Set<Marker> markers;
+  Set<Marker> markers = {};
+  var kGoogleApiKey = "";
+  GoogleMapsPlaces _places;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadAsset().then((string) {
+      kGoogleApiKey = string.split("=")[1];
+      _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
+    }).catchError((error) {
+      print(error);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +65,15 @@ class _Nearby extends State<Nearby> {
           actions: <Widget>[
             isLoading
                 ? IconButton(
-              icon: Icon(Icons.timer),
-              onPressed: () {},
-            )
+                    icon: Icon(Icons.timer),
+                    onPressed: () {},
+                  )
                 : IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: () {
-                refresh();
-              },
-            ),
+                    icon: Icon(Icons.refresh),
+                    onPressed: () {
+                      refresh();
+                    },
+                  ),
             IconButton(
               icon: Icon(Icons.search),
               onPressed: () {
@@ -76,8 +93,8 @@ class _Nearby extends State<Nearby> {
                     myLocationButtonEnabled: true,
                     myLocationEnabled: true,
                     markers: this.markers,
-                    initialCameraPosition: CameraPosition(
-                        target: LatLng(0.0, 0.0)),
+                    initialCameraPosition:
+                        CameraPosition(target: LatLng(0.0, 0.0)),
                   )),
             ),
             Expanded(child: expandedChild)
@@ -129,12 +146,11 @@ class _Nearby extends State<Nearby> {
           final markerOptions = Marker(
               markerId: MarkerId(f.geometry.location.lat.toString() +
                   f.geometry.location.lng.toString()),
-              position: LatLng(
-                  f.geometry.location.lat, f.geometry.location.lng),
+              position:
+                  LatLng(f.geometry.location.lat, f.geometry.location.lng),
               infoWindow: InfoWindow(
                 title: f.name,
-              )
-          );
+              ));
           markers.add(markerOptions);
           markers = markers;
         });
@@ -176,8 +192,9 @@ class _Nearby extends State<Nearby> {
     if (placeId != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) =>
-            PlaceDetailWidget(placeId: placeId.toString())),
+        MaterialPageRoute(
+            builder: (context) =>
+                PlaceDetailWidget(placeId: placeId.toString())),
       );
     }
   }
@@ -189,10 +206,7 @@ class _Nearby extends State<Nearby> {
           padding: EdgeInsets.only(bottom: 4.0),
           child: Text(
             f.name,
-            style: Theme
-                .of(context)
-                .textTheme
-                .subtitle,
+            style: Theme.of(context).textTheme.subtitle,
           ),
         )
       ];
@@ -201,10 +215,7 @@ class _Nearby extends State<Nearby> {
           padding: EdgeInsets.only(bottom: 2.0),
           child: Text(
             f.formattedAddress,
-            style: Theme
-                .of(context)
-                .textTheme
-                .subtitle,
+            style: Theme.of(context).textTheme.subtitle,
           ),
         ));
       }
@@ -214,10 +225,7 @@ class _Nearby extends State<Nearby> {
           padding: EdgeInsets.only(bottom: 2.0),
           child: Text(
             f.vicinity,
-            style: Theme
-                .of(context)
-                .textTheme
-                .body1,
+            style: Theme.of(context).textTheme.body1,
           ),
         ));
       }
@@ -227,10 +235,7 @@ class _Nearby extends State<Nearby> {
           padding: EdgeInsets.only(bottom: 2.0),
           child: Text(
             f.types.first,
-            style: Theme
-                .of(context)
-                .textTheme
-                .caption,
+            style: Theme.of(context).textTheme.caption,
           ),
         ));
       }
