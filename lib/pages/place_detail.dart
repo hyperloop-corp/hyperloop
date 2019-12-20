@@ -1,10 +1,11 @@
 import 'package:google_maps_webservice/places.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-// TODO: ADD your key here before running
-const kGoogleApiKey = "Your_key_here";
-GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
+Future<String> loadAsset() async {
+  return await rootBundle.loadString('android/keys.properties');
+}
 
 class PlaceDetailWidget extends StatefulWidget {
   String placeId;
@@ -20,13 +21,21 @@ class PlaceDetailWidget extends StatefulWidget {
 class PlaceDetailState extends State<PlaceDetailWidget> {
   GoogleMapController mapController;
   PlacesDetailsResponse place;
-  Set<Marker> markers;
+  Set<Marker> markers = {};
+  var kGoogleApiKey = "";
+  GoogleMapsPlaces _places;
   bool isLoading = false;
   String errorLoading;
 
   @override
   void initState() {
-    fetchPlaceDetail();
+    loadAsset().then((string) {
+      kGoogleApiKey = string.split("=")[1];
+      _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
+      fetchPlaceDetail();
+    }).catchError((error) {
+      print(error);
+    });
     super.initState();
   }
 
@@ -60,14 +69,15 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
         children: <Widget>[
           Container(
               child: SizedBox(
-                height: 200.0,
-                child: GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  myLocationButtonEnabled: true,
-                  myLocationEnabled: true,
-                  initialCameraPosition: CameraPosition(target: LatLng(0.0, 0.0)),
-                ),
-              )),
+            height: 200.0,
+            child: GoogleMap(
+              onMapCreated: _onMapCreated,
+              markers: this.markers,
+              myLocationButtonEnabled: true,
+              myLocationEnabled: true,
+              initialCameraPosition: CameraPosition(target: LatLng(0.0, 0.0)),
+            ),
+          )),
           Expanded(
             child: buildPlaceDetailList(placeDetail),
           )
@@ -89,19 +99,18 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
     });
 
     PlacesDetailsResponse place =
-    await _places.getDetailsByPlaceId(widget.placeId);
-
+        await _places.getDetailsByPlaceId(widget.placeId);
     if (mounted) {
       setState(() {
         this.isLoading = false;
         if (place.status == "OK") {
           this.place = place;
           final location = place.result.geometry.location;
-          Marker mar = new Marker(markerId: MarkerId(location.lat.toString()+location.lng.toString()),
-            position: LatLng(location.lat, location.lng)
-          );
+          final mar = Marker(
+              markerId:
+                  MarkerId(location.lat.toString() + location.lng.toString()),
+              position: LatLng(location.lat, location.lng));
           markers.add(mar);
-          markers = markers;
         } else {
           this.errorLoading = place.errorMessage;
         }
@@ -147,7 +156,7 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
     list.add(
       Padding(
           padding:
-          EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
+              EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
           child: Text(
             placeDetail.name,
             style: Theme.of(context).textTheme.subtitle,
@@ -158,7 +167,7 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
       list.add(
         Padding(
             padding:
-            EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
+                EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
             child: Text(
               placeDetail.formattedAddress,
               style: Theme.of(context).textTheme.body1,
@@ -170,7 +179,7 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
       list.add(
         Padding(
             padding:
-            EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 0.0),
+                EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 0.0),
             child: Text(
               placeDetail.types.first.toUpperCase(),
               style: Theme.of(context).textTheme.caption,
@@ -182,7 +191,7 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
       list.add(
         Padding(
             padding:
-            EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
+                EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
             child: Text(
               placeDetail.formattedPhoneNumber,
               style: Theme.of(context).textTheme.button,
@@ -201,7 +210,7 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
       list.add(
         Padding(
             padding:
-            EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
+                EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
             child: Text(
               text,
               style: Theme.of(context).textTheme.caption,
@@ -213,7 +222,7 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
       list.add(
         Padding(
             padding:
-            EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
+                EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
             child: Text(
               placeDetail.website,
               style: Theme.of(context).textTheme.caption,
@@ -225,7 +234,7 @@ class PlaceDetailState extends State<PlaceDetailWidget> {
       list.add(
         Padding(
             padding:
-            EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
+                EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
             child: Text(
               "Rating: ${placeDetail.rating}",
               style: Theme.of(context).textTheme.caption,

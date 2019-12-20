@@ -63,7 +63,7 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.place),
+            leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
               Navigator.pop(context);
