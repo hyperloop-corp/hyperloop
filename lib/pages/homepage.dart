@@ -11,6 +11,8 @@ import 'package:hyperloop/services/map_route_util.dart';
 import 'package:hyperloop/utils/drawer.dart';
 import 'package:location/location.dart';
 
+import 'buses_show.dart';
+
 const double minHeight = 180;
 
 class HomePage extends StatefulWidget {
@@ -23,15 +25,45 @@ class _HomePageState extends State<HomePage>
   String title = 'Hyperloop';
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  Animation<double> _translateButton;
+  Animation<double> _nameTranslation;
+
+  Curve _curve = Curves.easeOut;
+  bool isOpened = false;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
     _controller = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
-//    _controller.repeat(reverse: true);
-//    _controller.forward();
+        duration: const Duration(milliseconds: 200), vsync: this)
+      ..addListener(() {
+        setState(() {
+          print(_nameTranslation.value);
+        });
+      });
+    ;
+
+    _translateButton = Tween<double>(
+      begin: 0.0,
+      end: -100.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Interval(
+        0.0,
+        0.75,
+        curve: _curve,
+      ),
+    ));
+
+    _nameTranslation = Tween<double>(begin: 1, end: 0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Interval(
+        0.0,
+        0.75,
+        curve: Curves.linear,
+      ),
+    ));
   }
 
   Place fromAddress;
@@ -167,51 +199,79 @@ class _HomePageState extends State<HomePage>
               ),
             ),
             (fromAddress != null && toAddress != null)
-                ? SlideTransition(
-                    position: Tween<Offset>(
-                      begin: Offset.zero,
-                      end: const Offset(1.5, 0.0),
-                    ).animate(CurvedAnimation(
-                      parent: _controller,
-                      curve: Curves.elasticIn,
-                    )),
+                ? Transform(
+                    transform: Matrix4.translationValues(
+                      _translateButton.value,
+                      0.0,
+                      0.0,
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(22.0),
                       child: Align(
                         alignment: Alignment.bottomRight,
                         child: FloatingActionButton.extended(
                           onPressed: () {
-                            if (fromAddress == null || toAddress == null) {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    Future.delayed(Duration(milliseconds: 500),
-                                        () {
-                                      Navigator.of(context).pop(true);
-                                    });
-                                    return AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20.0))),
-                                      title: Container(
-                                          child: Text(
-                                              'Kindly Select Stops first!')),
-                                    );
-                                  });
-                            } else {
-                              Navigator.pushNamed(context, '/busesShow');
-                            }
+                            animate();
+//                              Navigator.push(
+//                                  context,
+//                                  FadePageRoute(
+//                                      builder: (context) => Ticket()));
                           },
-                          label: Text('Search for Buses'),
+                          label: Text(_nameTranslation.value >= 0.8
+                              ? "Search for Buses"
+                              : "Results"),
                           icon: Icon(Icons.youtube_searched_for),
                           backgroundColor: overlayColor,
                         ),
                       ),
                     ),
                   )
-                : SizedBox.shrink(),
+                : Container(),
+            (fromAddress != null && toAddress != null)
+                ? AnimatedOpacity(
+                    duration: Duration(microseconds: 500),
+                    opacity: 1 - _nameTranslation.value,
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            bottom: 80, left: 15, right: 15),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Container(
+                              decoration: BoxDecoration(
+                                  color: backgroundColor,
+                                  borderRadius: BorderRadius.circular(20)),
+                              height: 400,
+                              child: BusesShowWidget(),
+                            ),
+                            ClipPath(
+                              clipper: TriangleClipper(),
+                              child: Container(
+                                decoration:
+                                    BoxDecoration(color: backgroundColor),
+                                height: 40,
+                                width: 80,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
           ])),
     );
+  }
+
+  animate() {
+    print(_translateButton.value);
+    if (!isOpened) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
+    isOpened = !isOpened;
   }
 
   void _plotMarker(Place place, bool isFrom) {
@@ -245,7 +305,7 @@ class _HomePageState extends State<HomePage>
     addPolyline();
   }
 
-  addPolyline() async {
+  void addPolyline() async {
     //routes.clear();
     if (markers.length > 1) {
       mapUtil
@@ -280,7 +340,7 @@ class _HomePageState extends State<HomePage>
               markers[0].position.latitude, markers[0].position.longitude),
           northeast: LatLng(
               markers[1].position.latitude, markers[1].position.longitude));
-      CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 50);
+      CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 100);
 
       this._controllerMap.future.then((controller) {
         controller.animateCamera(u2);
@@ -302,7 +362,22 @@ class _HomePageState extends State<HomePage>
     print(fromAddress);
     print(toAddress);
 
-//    _plotMarker(mkId, place);
-//    addPolyline();
+    _plotMarker(place, fromAddressBool);
+    addPolyline();
   }
+}
+
+class TriangleClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(size.width, 0.0);
+    path.lineTo(size.width / 2, size.height);
+
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(TriangleClipper oldClipper) => false;
 }
