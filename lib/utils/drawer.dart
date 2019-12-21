@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hyperloop/constants/colors.dart';
 import 'package:hyperloop/pages/homepage.dart';
 import 'package:hyperloop/pages/nearby.dart';
 import 'package:hyperloop/pages/ticket.dart';
@@ -16,7 +17,7 @@ class HyperloopDrawer extends StatefulWidget {
 
 class _HyperloopDrawerState extends State<HyperloopDrawer> {
   Future<void> logout() async {
-    _asyncConfirmDialog(context).then((value){
+    _asyncConfirmDialog(context).then((value) {
       print(value);
     });
   }
@@ -28,8 +29,7 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Confirm Logout?'),
-            content: const Text(
-                'You will be logged out of this device.'),
+            content: const Text('You will be logged out of this device.'),
             actions: <Widget>[
               FlatButton(
                 child: const Text('No'),
@@ -55,11 +55,15 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
+            decoration: BoxDecoration(color: backgroundColor),
             accountName: Text("Nirmaljot Singh"),
             accountEmail: Text("nsbhasincool@gmail.com"),
             currentAccountPicture: new CircleAvatar(
-              backgroundColor: Colors.grey,
-              child: Text("NS"),
+              backgroundColor: Colors.white70,
+              child: Text(
+                "NS",
+                style: TextStyle(color: backgroundColor),
+              ),
             ),
           ),
           ListTile(
@@ -67,7 +71,8 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
             title: Text('Home'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => HomePage()));
             },
           ),
           ListTile(
@@ -75,7 +80,8 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
             title: Text('Nearby'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Nearby()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Nearby()));
             },
           ),
           ListTile(
@@ -91,7 +97,8 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
             title: Text('My Tickets'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Ticket()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Ticket()));
             },
           ),
           ListTile(
@@ -131,12 +138,10 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
           ListTile(
             title: Text('Logout'),
             onTap: () async {
-
               final ConfirmAction value = await _asyncConfirmDialog(context);
-              if(value == ConfirmAction.ACCEPT){
+              if (value == ConfirmAction.ACCEPT) {
                 Navigator.pushReplacementNamed(context, '/');
-              }
-              else{
+              } else {
                 Navigator.pop(context);
               }
             },
