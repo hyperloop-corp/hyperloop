@@ -1,14 +1,15 @@
-import 'dart:math' as math;
-import 'dart:ui';
+import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hyperloop/constants/colors.dart';
 import 'package:hyperloop/data_models/place.dart';
-import 'package:hyperloop/pages/place_picker.dart';
+import 'package:hyperloop/pages/stop_select.dart';
 import 'package:hyperloop/services/map_route_util.dart';
 import 'package:hyperloop/utils/drawer.dart';
-import 'package:hyperloop/utils/map.dart';
+import 'package:location/location.dart';
 
 const double minHeight = 180;
 
@@ -22,222 +23,195 @@ class _HomePageState extends State<HomePage>
   String title = 'Hyperloop';
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  AnimationController _controller;
-
-  double get maxHeight => MediaQuery.of(context).size.height - 520;
 
   @override
   void initState() {
     super.initState();
+    initPlatformState();
     _controller = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 1000));
+        duration: const Duration(milliseconds: 500), vsync: this);
+//    _controller.repeat(reverse: true);
+//    _controller.forward();
   }
-
-  double lerp(double min, double max) =>
-      lerpDouble(min, max, _controller.value);
 
   Place fromAddress;
   Place toAddress;
   List<Marker> markers = [];
   List<Polyline> routes = [];
   MapUtil mapUtil = MapUtil();
+  AnimationController _controller;
+
+  LocationData _startLocation;
+  LocationData _currentLocation;
+
+  StreamSubscription<LocationData> _locationSubscription;
+
+  Location _locationService = new Location();
+  bool _permission = false;
+  bool _isFirstLaunch = true;
+  String error;
+
+  Completer<GoogleMapController> _controllerMap = Completer();
+
+  static final CameraPosition _initialCamera = CameraPosition(
+    target: LatLng(36.4848, 78.3488347),
+    zoom: 4,
+  );
+
+  CameraPosition _currentCameraPosition;
+
+  initPlatformState() async {
+    await _locationService.changeSettings(
+        accuracy: LocationAccuracy.HIGH, interval: 10000);
+
+    LocationData location;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      bool serviceStatus = await _locationService.serviceEnabled();
+      print("Service status: $serviceStatus");
+      if (serviceStatus) {
+        _permission = await _locationService.requestPermission();
+        print("Permission: $_permission");
+        if (_permission) {
+          location = await _locationService.getLocation();
+
+          _locationSubscription = _locationService
+              .onLocationChanged()
+              .listen((LocationData result) async {
+            _currentCameraPosition = CameraPosition(
+                target: LatLng(result.latitude, result.longitude), zoom: 16);
+
+            if (_isFirstLaunch) {
+              final GoogleMapController controller =
+                  await _controllerMap.future;
+              controller.animateCamera(
+                  CameraUpdate.newCameraPosition(_currentCameraPosition));
+              _isFirstLaunch = false;
+            }
+
+            if (mounted) {
+              setState(() {
+                _currentLocation = result;
+              });
+            }
+          });
+        }
+      } else {
+        bool serviceStatusResult = await _locationService.requestService();
+        print("Service status activated after request: $serviceStatusResult");
+        if (serviceStatusResult) {
+          initPlatformState();
+        }
+      }
+    } on PlatformException catch (e) {
+      print(e);
+      if (e.code == 'PERMISSION_DENIED') {
+        error = e.message;
+      } else if (e.code == 'SERVICE_STATUS_ERROR') {
+        error = e.message;
+      }
+      location = null;
+    }
+
+    setState(() {
+      _startLocation = location;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        key: _scaffoldKey,
-        bottomSheet: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return GestureDetector(
-              onVerticalDragUpdate: _handleDragUpdate,
-              onVerticalDragEnd: _handleDragEnd,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: Container(
-                  width: double.infinity,
-                  height: lerp(minHeight, maxHeight),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 10)],
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "Plan your today's trip",
-                              style: TextStyle().copyWith(
-                                  letterSpacing: 1.9,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          Container(
-                            width: double.infinity,
-                            height: 50,
-                            child: FlatButton(
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => PlacePicker(
-                                            fromAddress == null
-                                                ? ""
-                                                : fromAddress.name,
-                                            (place, isFrom) {
-                                          fromAddress = place;
-                                          _plotMarker(place, isFrom);
-                                          setState(() {});
-                                        }, true)));
-                              },
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: double.infinity,
-                                child: Stack(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: 40.0,
-                                      width: 50.0,
-                                      child: Center(
-                                        child: Container(
-                                            margin: EdgeInsets.only(top: 2),
-                                            width: 10,
-                                            height: 10,
-                                            decoration: BoxDecoration(
-                                                color: Colors.orange)),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      width: 40,
-                                      height: 50,
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.close,
-                                          size: 18,
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 40.0, right: 50.0),
-                                      child: Text(
-                                        fromAddress == null
-                                            ? "Source Bus Stop"
-                                            : fromAddress.name,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white70),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Divider(
-                            color: Colors.white70,
-                          ),
-                          Container(
-                            width: double.infinity,
-                            height: 50,
-                            child: FlatButton(
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => PlacePicker(
-                                            toAddress == null
-                                                ? ''
-                                                : toAddress.name,
-                                            (place, isFrom) {
-                                          toAddress = place;
-                                          _plotMarker(place, isFrom);
-                                          setState(() {});
-                                        }, false)));
-                              },
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: double.infinity,
-                                child: Stack(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: 40.0,
-                                      width: 50.0,
-                                      child: Center(
-                                        child: Container(
-                                            margin: EdgeInsets.only(top: 2),
-                                            width: 10,
-                                            height: 10,
-                                            decoration: BoxDecoration(
-                                                color: Colors.greenAccent)),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      width: 40,
-                                      height: 50,
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.close,
-                                          size: 18,
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 40.0, right: 50.0),
-                                      child: Text(
-                                        toAddress == null
-                                            ? "Destination Bus Stop"
-                                            : toAddress.name,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white70),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          _controller.status == AnimationStatus.completed
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 15.0),
-                                  child: _builtSubmitButton(),
-                                )
-                              : Container(),
-                        ],
+    return SafeArea(
+      child: Scaffold(
+          key: _scaffoldKey,
+          drawer: HyperloopDrawer(onTabSelect: (selectedTab) {
+            setState(() {
+              this.title = selectedTab;
+            });
+          }),
+          body: Stack(children: <Widget>[
+            GoogleMap(
+              mapType: MapType.normal,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              markers: Set<Marker>.of(markers),
+              polylines: Set<Polyline>.of(routes),
+              initialCameraPosition: _initialCamera,
+              onMapCreated: (GoogleMapController controller) {
+                _controllerMap.complete(controller);
+              },
+            ),
+            Positioned(
+              left: 0,
+              top: 0,
+              right: 0,
+              child: Column(
+                children: <Widget>[
+                  AppBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0.0,
+                    leading: FlatButton(
+                      onPressed: () {
+                        _scaffoldKey.currentState.openDrawer();
+                      },
+                      child: Icon(
+                        Icons.menu,
+                        color: Colors.black,
                       ),
                     ),
                   ),
-                ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+                    child: StopSelectWidget(onPlaceSelected),
+                  )
+                ],
               ),
-            );
-          },
-        ),
-        appBar: AppBar(
-          title: Text(this.title),
-        ),
-        drawer: HyperloopDrawer(onTabSelect: (selectedTab) {
-          setState(() {
-            this.title = selectedTab;
-          });
-        }),
-        body: Stack(children: <Widget>[HyperLoopMap(markers, routes)]));
+            ),
+            (fromAddress != null && toAddress != null)
+                ? SlideTransition(
+                    position: Tween<Offset>(
+                      begin: Offset.zero,
+                      end: const Offset(1.5, 0.0),
+                    ).animate(CurvedAnimation(
+                      parent: _controller,
+                      curve: Curves.elasticIn,
+                    )),
+                    child: Padding(
+                      padding: const EdgeInsets.all(22.0),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: FloatingActionButton.extended(
+                          onPressed: () {
+                            if (fromAddress == null || toAddress == null) {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    Future.delayed(Duration(milliseconds: 500),
+                                        () {
+                                      Navigator.of(context).pop(true);
+                                    });
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20.0))),
+                                      title: Container(
+                                          child: Text(
+                                              'Kindly Select Stops first!')),
+                                    );
+                                  });
+                            } else {
+                              Navigator.pushNamed(context, '/busesShow');
+                            }
+                          },
+                          label: Text('Search for Buses'),
+                          icon: Icon(Icons.youtube_searched_for),
+                          backgroundColor: overlayColor,
+                        ),
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ])),
+    );
   }
 
   void _plotMarker(Place place, bool isFrom) {
@@ -308,92 +282,27 @@ class _HomePageState extends State<HomePage>
               markers[1].position.latitude, markers[1].position.longitude));
       CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 50);
 
-      // TODO to move the camera towards Bounds
+      this._controllerMap.future.then((controller) {
+        controller.animateCamera(u2);
+      });
     }
   }
 
-//  void latLongBoundFunction(){
-//    this.mapController.animateCamera(u2).then((void v){
-//      check(u2,this.mapController);
-//    });
-//  }
+  void onPlaceSelected(Place place, bool fromAddressBool) {
+    var mkId = fromAddressBool ? "from_address" : "to_address";
+    if (fromAddressBool)
+      setState(() {
+        fromAddress = place;
+      });
+    else
+      setState(() {
+        toAddress = place;
+      });
 
-  void _handleDragUpdate(DragUpdateDetails details) {
-    _controller.value -= details.primaryDelta / maxHeight;
-  }
+    print(fromAddress);
+    print(toAddress);
 
-  void _handleDragEnd(DragEndDetails details) {
-    if (_controller.isAnimating ||
-        _controller.status == AnimationStatus.completed) return;
-
-    final double flingVelocity =
-        details.velocity.pixelsPerSecond.dy / maxHeight;
-
-    if (flingVelocity < 0.0) {
-      _controller.fling(velocity: math.max(2.0, -flingVelocity));
-    } else if (flingVelocity > 0.0) {
-      _controller.fling(velocity: math.min(-2.0, -flingVelocity));
-    } else {
-      _controller.fling(velocity: _controller.value < 0.5 ? -2.0 : 2.0);
-    }
-  }
-
-  Widget _builtSubmitButton() {
-    return SubmitButton(
-      isVisible: _controller.status == AnimationStatus.completed,
-      fromAddress: fromAddress,
-      toAddress: toAddress,
-    );
-  }
-}
-
-class SubmitButton extends StatelessWidget {
-  final bool isVisible;
-
-  final Place fromAddress;
-  final Place toAddress;
-
-  SubmitButton({Key key, this.isVisible, this.fromAddress, this.toAddress})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      opacity: isVisible ? 1 : 0,
-      duration: Duration(milliseconds: 1000),
-      child: RawMaterialButton(
-        onPressed: () {
-          if (fromAddress == null || toAddress == null) {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  Future.delayed(Duration(milliseconds: 500), () {
-                    Navigator.of(context).pop(true);
-                  });
-                  return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                    title: Container(child: Text('Kindly Select Stops first!')),
-                  );
-                });
-          } else {
-
-              Navigator.pushNamed(context, '/busesShow');
-          }
-        },
-        splashColor: Colors.white,
-        fillColor: Colors.orange,
-        elevation: 5.0,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Container(
-                child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 20),
-              child: Text("Search for Buses"),
-            ))),
-      ),
-    );
+//    _plotMarker(mkId, place);
+//    addPolyline();
   }
 }
