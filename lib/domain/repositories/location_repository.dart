@@ -7,7 +7,7 @@ import 'package:hyperloop/domain/entities/location.dart';
 abstract class LocationRepository {
   Future<Either<Failure, Location>> getLocation();
 
-  Stream<Location> onLocationChanged();
+  Future<Either<Failure, Stream<Location>>> onLocationChanged();
 
   Future<Either<Failure, void>> enableLocationServices();
 }

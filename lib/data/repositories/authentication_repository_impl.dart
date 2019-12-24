@@ -84,6 +84,17 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
     try {
       return Right(await authStore.signInWithPhoneNumber(smsCode));
     } catch (e) {
+      print(e.toString());
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> signInWithGoogle() async {
+    try {
+      return Right(await authStore.signInWithGoogle());
+    } catch (e) {
+      print(e.toString());
       return Left(ServerFailure());
     }
   }

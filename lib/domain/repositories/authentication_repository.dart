@@ -15,6 +15,8 @@ abstract class AuthenticationRepository {
 
   Future<Either<Failure, User>> signInWithPhoneNumber(String smsCode);
 
+  Future<Either<Failure, User>> signInWithGoogle();
+
   Future<Either<Failure, void>> signOut();
 
   Future<Either<Failure, Stream<User>>> onAuthStateChanged();

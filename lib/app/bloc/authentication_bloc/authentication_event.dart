@@ -8,10 +8,10 @@ class AppStarted extends AuthenticationEvent {
   List<Object> get props => [];
 }
 
-class VerifyPhone extends AuthenticationEvent {
+class InvokeVerifyPhone extends AuthenticationEvent {
   final String phoneNumber;
 
-  VerifyPhone({this.phoneNumber});
+  InvokeVerifyPhone({this.phoneNumber});
 
   @override
   List<Object> get props => [phoneNumber];
@@ -24,13 +24,37 @@ class CodeSent extends AuthenticationEvent {
   List<Object> get props => [];
 }
 
-class SignInWithPhone extends AuthenticationEvent {
+class InvokeSignInWithPhone extends AuthenticationEvent {
   final String smsCode;
 
-  SignInWithPhone({this.smsCode});
+  InvokeSignInWithPhone({this.smsCode});
 
   @override
   List<Object> get props => [smsCode];
+}
+
+class InvokeSignInWithEmail extends AuthenticationEvent {
+  final String email;
+  final String password;
+
+  InvokeSignInWithEmail({this.email, this.password});
+
+  @override
+  List<Object> get props => [email, password];
+}
+
+class InvokeSignInWithGoogle extends AuthenticationEvent {
+  InvokeSignInWithGoogle();
+
+  @override
+  List<Object> get props => [];
+}
+
+class InvokeSignOut extends AuthenticationEvent {
+  InvokeSignOut();
+
+  @override
+  List<Object> get props => [];
 }
 
 class LoggedIn extends AuthenticationEvent {

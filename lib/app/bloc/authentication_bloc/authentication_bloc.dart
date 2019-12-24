@@ -10,6 +10,8 @@ import 'package:hyperloop/domain/entities/phone_auth_state.dart';
 import 'package:hyperloop/domain/entities/user.dart';
 import 'package:hyperloop/domain/usecases/auth/get_auth_status_usecase.dart';
 import 'package:hyperloop/domain/usecases/auth/logout_usecase.dart';
+import 'package:hyperloop/domain/usecases/auth/signin_with_email.dart';
+import 'package:hyperloop/domain/usecases/auth/signin_with_google.dart';
 import 'package:hyperloop/domain/usecases/auth/signin_with_phone_number_usercase.dart';
 import 'package:hyperloop/domain/usecases/auth/verify_phone_number_usecase.dart';
 
@@ -21,6 +23,8 @@ class AuthenticationBloc
   final GetAuthStatus getAuthStatus;
   final VerifyPhoneNumber verifyPhoneNumber;
   final SignInWithPhoneNumber signInWithPhoneNumber;
+  final SignInWithEmail signInWithEmail;
+  final SignInWithGoogle signInWithGoogle;
   final Logout logout;
 
   StreamSubscription _authUserSubscription;
@@ -30,6 +34,8 @@ class AuthenticationBloc
       {@required this.getAuthStatus,
       @required this.verifyPhoneNumber,
       @required this.signInWithPhoneNumber,
+      @required this.signInWithEmail,
+      @required this.signInWithGoogle,
       @required this.logout});
 
   @override
@@ -45,12 +51,18 @@ class AuthenticationBloc
       yield* _mapLoggedInToState(event);
     } else if (event is LoggedOut) {
       yield* _mapLoggedOutToState();
-    } else if (event is VerifyPhone) {
+    } else if (event is InvokeVerifyPhone) {
       yield* _mapVerifyPhoneToState(event);
-    } else if (event is SignInWithPhone) {
+    } else if (event is InvokeSignInWithPhone) {
       yield* _mapSignInWithPhoneToState(event);
+    } else if (event is InvokeSignInWithEmail) {
+      yield* _mapSignInWithEmailToState(event);
     } else if (event is CodeSent) {
       yield* _mapCodeSentToState();
+    } else if (event is InvokeSignInWithGoogle) {
+      yield* _mapSignInWithGoogleToState();
+    } else if (event is InvokeSignOut) {
+      yield* _mapSignOutToState();
     }
   }
 
@@ -58,8 +70,8 @@ class AuthenticationBloc
     try {
       final failureOrAuthStatus = await getAuthStatus(NoParams());
       yield* failureOrAuthStatus.fold(
-          (failure) =>
-              Stream.value(AuthenticationError(message: _mapFailureToMessage(failure))),
+          (failure) => Stream.value(
+              AuthenticationError(message: _mapFailureToMessage(failure))),
           (userStream) => _mapAuthUserToState(userStream));
     } catch (e) {
       yield AuthenticationError(message: UNEXPECTED_ERROR_MESSAGE);
@@ -82,13 +94,14 @@ class AuthenticationBloc
     }
   }
 
-  Stream<AuthenticationState> _mapVerifyPhoneToState(VerifyPhone event) async* {
+  Stream<AuthenticationState> _mapVerifyPhoneToState(
+      InvokeVerifyPhone event) async* {
     try {
       final failureOrAuthState = await verifyPhoneNumber(
           VerifyPhoneNumberParams(phoneNumber: event.phoneNumber));
       yield* failureOrAuthState.fold(
-          (failure) =>
-              Stream.value(AuthenticationError(message: _mapFailureToMessage(failure))),
+          (failure) => Stream.value(
+              AuthenticationError(message: _mapFailureToMessage(failure))),
           (authStateStream) => _mapAuthStateToState(authStateStream));
     } catch (e) {
       yield AuthenticationError(message: UNEXPECTED_ERROR_MESSAGE);
@@ -100,14 +113,55 @@ class AuthenticationBloc
   }
 
   Stream<AuthenticationState> _mapSignInWithPhoneToState(
-      SignInWithPhone event) async* {
+      InvokeSignInWithPhone event) async* {
     try {
       final failureOrUser = await signInWithPhoneNumber(
           SignInWithPhoneNumberParams(smsCode: event.smsCode));
       yield failureOrUser.fold(
-          (failure) => AuthenticationError(message: _mapFailureToMessage(failure)),
+          (failure) =>
+              AuthenticationError(message: _mapFailureToMessage(failure)),
           (user) =>
               user != null ? Authenticated(user: user) : Unauthenticated());
+    } catch (e) {
+      yield AuthenticationError(message: UNEXPECTED_ERROR_MESSAGE);
+    }
+  }
+
+  Stream<AuthenticationState> _mapSignInWithEmailToState(
+      InvokeSignInWithEmail event) async* {
+    try {
+      final failureOrUser = await signInWithEmail(
+          SignInWithEmailParams(email: event.email, password: event.password));
+      yield failureOrUser.fold(
+          (failure) =>
+              AuthenticationError(message: _mapFailureToMessage(failure)),
+          (user) =>
+              user != null ? Authenticated(user: user) : Unauthenticated());
+    } catch (e) {
+      yield AuthenticationError(message: UNEXPECTED_ERROR_MESSAGE);
+    }
+  }
+
+  Stream<AuthenticationState> _mapSignInWithGoogleToState() async* {
+    try {
+      final failureOrUser = await signInWithGoogle(NoParams());
+      yield failureOrUser.fold(
+          (failure) =>
+              AuthenticationError(message: _mapFailureToMessage(failure)),
+          (user) =>
+              user != null ? Authenticated(user: user) : Unauthenticated());
+    } catch (e) {
+      yield AuthenticationError(message: UNEXPECTED_ERROR_MESSAGE);
+    }
+  }
+
+  Stream<AuthenticationState> _mapSignOutToState() async* {
+    try {
+      final failureOrVoid = await logout(NoParams());
+      yield failureOrVoid.fold(
+          (failure) =>
+              AuthenticationError(message: _mapFailureToMessage(failure)),
+          (user) => Unauthenticated());
     } catch (e) {
       yield AuthenticationError(message: UNEXPECTED_ERROR_MESSAGE);
     }

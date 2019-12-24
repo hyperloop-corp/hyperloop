@@ -12,6 +12,8 @@ abstract class AuthStore {
 
   Future<UserModel> signInWithPhoneNumber(String smsCode);
 
+  Future<UserModel> signInWithGoogle();
+
   Future<void> signOut();
 
   Future<void> forgotPassword(String email);

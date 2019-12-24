@@ -2,10 +2,10 @@ import 'package:dartz/dartz.dart';
 import 'package:hyperloop/core/errors/failure.dart';
 import 'package:hyperloop/domain/entities/location.dart';
 import 'package:hyperloop/domain/repositories/location_repository.dart';
-import 'package:location/location.dart' as LocationLib;
+import 'package:location/location.dart' as LocationService;
 
 class LocationRepositoryImpl implements LocationRepository {
-  final LocationLib.Location locationDevice;
+  final LocationService.Location locationDevice;
 
   LocationRepositoryImpl(this.locationDevice);
 
@@ -23,6 +23,7 @@ class LocationRepositoryImpl implements LocationRepository {
       }
       return Right(null);
     } catch (e) {
+      print(e.toString());
       return Left(DeviceFailure());
     }
   }
@@ -30,19 +31,25 @@ class LocationRepositoryImpl implements LocationRepository {
   @override
   Future<Either<Failure, Location>> getLocation() async {
     try {
-      LocationLib.LocationData location = await locationDevice.getLocation();
+      LocationService.LocationData location = await locationDevice.getLocation();
       return Right(Location.withoutTime(location.latitude.toString(),
           location.longitude.toString(), location.speed));
     } catch (e) {
+      print(e.toString());
       return Left(DeviceFailure());
     }
   }
 
   @override
-  Stream<Location> onLocationChanged() {
-    return locationDevice.onLocationChanged().map((location) {
-      return Location.withoutTime(location.latitude.toString(),
-          location.longitude.toString(), location.speed);
-    });
+  Future<Either<Failure, Stream<Location>>> onLocationChanged() async {
+    try {
+      return Right(locationDevice.onLocationChanged().map((location) {
+        return Location.withoutTime(location.latitude.toString(),
+            location.longitude.toString(), location.speed);
+      }));
+    } catch (e) {
+      print(e.toString());
+      return Left(DeviceFailure());
+    }
   }
 }
