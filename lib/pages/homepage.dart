@@ -227,10 +227,10 @@ class _HomePageState extends State<HomePage>
                     ),
                   )
                 : Container(),
-            (fromAddress != null && toAddress != null)
+            (fromAddress != null && toAddress != null )
                 ? AnimatedOpacity(
                     duration: Duration(microseconds: 500),
-                    opacity: 1 - _nameTranslation.value,
+                    opacity: _controller.value,
                     child: Container(
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -335,15 +335,26 @@ class _HomePageState extends State<HomePage>
         });
       });
 
-      LatLngBounds bound = LatLngBounds(
-          southwest: LatLng(
-              markers[0].position.latitude, markers[0].position.longitude),
-          northeast: LatLng(
-              markers[1].position.latitude, markers[1].position.longitude));
-      CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 100);
-
       this._controllerMap.future.then((controller) {
-        controller.animateCamera(u2);
+        {
+          try {
+            LatLngBounds bound = LatLngBounds(
+                southwest: LatLng(markers[0].position.latitude,
+                    markers[0].position.longitude),
+                northeast: LatLng(markers[1].position.latitude,
+                    markers[1].position.longitude));
+            CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 100);
+            controller.animateCamera(u2);
+          } on Exception catch (e) {
+            LatLngBounds bound = LatLngBounds(
+                northeast: LatLng(markers[0].position.latitude,
+                    markers[0].position.longitude),
+                southwest: LatLng(markers[1].position.latitude,
+                    markers[1].position.longitude));
+            CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 100);
+            controller.animateCamera(u2);
+          }
+        }
       });
     }
   }

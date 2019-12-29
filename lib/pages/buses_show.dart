@@ -80,7 +80,7 @@ class _BusesShowWidgetState extends State<BusesShowWidget> {
           trailing:
               Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
           onTap: () {
-            Navigator.pushReplacementNamed(context, '/tickets');
+            Navigator.pushReplacementNamed(context, '/bustimeline');
           },
         );
 
