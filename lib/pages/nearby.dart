@@ -6,7 +6,7 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart' as Location;
 import 'package:google_maps_webservice/places.dart';
-import 'package:hyperloop/utils/drawer.dart';
+import 'package:hyperloop/constants/colors.dart';
 import 'package:location/location.dart' as LocationManager;
 import 'package:location/location.dart';
 
@@ -62,6 +62,9 @@ class _Nearby extends State<Nearby> {
         key: homeScaffoldKey,
         appBar: AppBar(
           title: const Text("Nearby"),
+          backgroundColor: backgroundColor,
+          elevation: 0,
+          centerTitle: true,
           actions: <Widget>[
             isLoading
                 ? IconButton(
@@ -82,7 +85,6 @@ class _Nearby extends State<Nearby> {
             ),
           ],
         ),
-        drawer: HyperloopDrawer(),
         body: Column(
           children: <Widget>[
             Container(
@@ -204,7 +206,10 @@ class _Nearby extends State<Nearby> {
           padding: EdgeInsets.only(bottom: 4.0),
           child: Text(
             f.name,
-            style: Theme.of(context).textTheme.subtitle,
+            style: Theme.of(context)
+                .textTheme
+                .subtitle
+                .copyWith(color: Colors.white70, fontWeight: FontWeight.w400),
           ),
         )
       ];
@@ -233,7 +238,7 @@ class _Nearby extends State<Nearby> {
           padding: EdgeInsets.only(bottom: 2.0),
           child: Text(
             f.types.first,
-            style: Theme.of(context).textTheme.caption,
+            style: Theme.of(context).textTheme.caption.copyWith(color: Colors.lightBlueAccent.withOpacity(0.7)),
           ),
         ));
       }
@@ -241,12 +246,13 @@ class _Nearby extends State<Nearby> {
       return Padding(
         padding: EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0, right: 8.0),
         child: Card(
+          color: overlayColor,
           child: InkWell(
             onTap: () {
               showDetailPlace(f.placeId);
             },
-            highlightColor: Colors.lightBlueAccent,
-            splashColor: Colors.red,
+            highlightColor: overlayColor,
+            splashColor: overlayColor,
             child: Padding(
               padding: EdgeInsets.all(8.0),
               child: Column(

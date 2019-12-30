@@ -43,9 +43,17 @@ class _BusTimelineState extends State<BusTimeline> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                "Code: 123-A\nFrom: Mohali Railway Station\nTo: PGI",
-                style: TextStyle().copyWith(fontSize: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    "Code: 123-A\nFrom: Mohali Railway Station\nTo: PGI",
+                    style: TextStyle().copyWith(fontSize: 16),
+                  ),
+                  RaisedButton(child: Text("Proceed ->"),onPressed: (){
+                    Navigator.pushReplacementNamed(context, '/tickets');
+                  },)
+                ],
               ),
               stops == null
                   ? Center(

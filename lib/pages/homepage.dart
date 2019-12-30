@@ -227,7 +227,7 @@ class _HomePageState extends State<HomePage>
                     ),
                   )
                 : Container(),
-            (fromAddress != null && toAddress != null )
+            (fromAddress != null && toAddress != null && _controller.value == 1)
                 ? AnimatedOpacity(
                     duration: Duration(microseconds: 500),
                     opacity: _controller.value,
@@ -335,27 +335,27 @@ class _HomePageState extends State<HomePage>
         });
       });
 
-      this._controllerMap.future.then((controller) {
-        {
-          try {
-            LatLngBounds bound = LatLngBounds(
-                southwest: LatLng(markers[0].position.latitude,
-                    markers[0].position.longitude),
-                northeast: LatLng(markers[1].position.latitude,
-                    markers[1].position.longitude));
-            CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 100);
-            controller.animateCamera(u2);
-          } on Exception catch (e) {
-            LatLngBounds bound = LatLngBounds(
-                northeast: LatLng(markers[0].position.latitude,
-                    markers[0].position.longitude),
-                southwest: LatLng(markers[1].position.latitude,
-                    markers[1].position.longitude));
-            CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 100);
-            controller.animateCamera(u2);
-          }
-        }
-      });
+//      this._controllerMap.future.then((controller) {
+//        {
+//          try {
+//            LatLngBounds bound = LatLngBounds(
+//                southwest: LatLng(markers[0].position.latitude,
+//                    markers[0].position.longitude),
+//                northeast: LatLng(markers[1].position.latitude,
+//                    markers[1].position.longitude));
+//            CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 100);
+//            controller.animateCamera(u2);
+//          } on Exception catch (e) {
+//            LatLngBounds bound = LatLngBounds(
+//                northeast: LatLng(markers[0].position.latitude,
+//                    markers[0].position.longitude),
+//                southwest: LatLng(markers[1].position.latitude,
+//                    markers[1].position.longitude));
+//            CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 100);
+//            controller.animateCamera(u2);
+//          }
+//        }
+//      });
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hyperloop/constants/colors.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrCodeGeneratorWidget extends StatefulWidget {
@@ -56,7 +57,7 @@ class _QrCodeGeneratorState extends State<QrCodeGeneratorWidget> {
               child: Container(
                 width: 280,
                 decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blue, width: 5.0),
+                    border: Border.all(color: backgroundColor, width: 10.0),
                     borderRadius: BorderRadius.circular(15.0),
                     color: Colors.white),
                 child: Padding(
