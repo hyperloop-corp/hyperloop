@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:hyperloop/constants/colors.dart';
 import 'package:hyperloop/pages/homepage.dart';
 import 'package:hyperloop/pages/nearby.dart';
+import 'package:hyperloop/pages/payment.dart';
 import 'package:hyperloop/pages/ticket.dart';
 
 enum ConfirmAction { CANCEL, ACCEPT }
@@ -16,9 +19,27 @@ class HyperloopDrawer extends StatefulWidget {
 }
 
 class _HyperloopDrawerState extends State<HyperloopDrawer> {
+  FirebaseUser user;
+  FirebaseDatabase db = FirebaseDatabase();
+  int money = 0;
+
   Future<void> logout() async {
     _asyncConfirmDialog(context).then((value) {
       print(value);
+    });
+  }
+
+  void _getUser() async {
+    await FirebaseAuth.instance.currentUser().then((user) {
+      db
+          .reference()
+          .child('users')
+          .child(user.uid)
+          .once()
+          .then((DataSnapshot snapshot) {
+        money = snapshot.value == null ? 0 : snapshot.value["money"];
+        this.user = user;
+      });
     });
   }
 
@@ -39,13 +60,21 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
               ),
               FlatButton(
                 child: const Text('Yes'),
-                onPressed: () {
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
                   Navigator.of(context).pop(ConfirmAction.ACCEPT);
                 },
               )
             ],
           );
         });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _getUser();
   }
 
   @override
@@ -64,6 +93,13 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
                 "NS",
                 style: TextStyle(color: backgroundColor),
               ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 8, 0, 0),
+            child: Text(
+              user == null ? "Loading.." : "Wallet: \₹ $money",
+              style: TextStyle(color: overlayColor),
             ),
           ),
           ListTile(
@@ -85,11 +121,12 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.star),
-            title: Text('Starred stops'),
+            leading: Icon(Icons.account_balance_wallet),
+            title: Text('My Wallet'),
             onTap: () {
-              widget.onTabSelect('Starred stops');
               Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => PaymentWidget()));
             },
           ),
           ListTile(
@@ -114,14 +151,6 @@ class _HyperloopDrawerState extends State<HyperloopDrawer> {
             title: Text('Plan a trip'),
             onTap: () {
               widget.onTabSelect('Plan a trip');
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.payment),
-            title: Text('Pay my fare'),
-            onTap: () {
-              widget.onTabSelect('Pay my fare');
               Navigator.pop(context);
             },
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hyperloop/pages/bus_timeline.dart';
 import 'package:hyperloop/pages/buses_show.dart';
 import 'package:hyperloop/pages/mobile_input.dart';
 import 'package:hyperloop/pages/nearby.dart';
@@ -23,7 +24,8 @@ void main() => runApp(MaterialApp(
         '/home': (context) => HomePage(),
         '/mobile_input': (context) => PhoneAuthGetPhone(),
         '/tickets': (context) => Ticket(),
-        'nearby': (context) => Nearby(),
+        '/nearby': (context) => Nearby(),
         '/busesShow': (context) => BusesShowWidget(),
+        '/bustimeline' : (context) => BusTimeline(title: "Bus Timeline",),
       },
     ));

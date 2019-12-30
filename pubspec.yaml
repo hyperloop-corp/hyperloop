@@ -27,7 +27,7 @@ dependencies:
   google_maps_flutter:
 
   location:
-
+  firebase_database: ^3.0.5
   firebase_core:
   firebase_analytics:
   firebase_auth:
@@ -35,6 +35,7 @@ dependencies:
   google_maps_webservice: ^0.0.14
   qr_flutter: ^3.0.1
   flutter_google_places: ^0.2.3
+  timeline_list: ^0.0.3
 
 dev_dependencies:
   flutter_test:
@@ -54,3 +55,4 @@ flutter:
     - images/
     - data/
     - android/keys.properties
+    - assets/images/wallet-icon-13.png

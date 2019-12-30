@@ -3,13 +3,13 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:hyperloop/data_models/place.dart';
-//import 'package:hyperloop/src/model/step_res.dart';
 
 String url =
     "https://maps.googleapis.com/maps/api/directions/json?origin=Toronto&destination=Montreal&sensor=false&mode=driving&key=AIzaSyDPaFRwkTfLGUgDovW6ZrldT9e77mYR7sU";
 
 class PlaceService {
   static Future<List<Place>> searchPlace(String keyWord) async {
+    // check for findplacefromtext in place of textsearch
     String url =
         "https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaSyDPaFRwkTfLGUgDovW6ZrldT9e77mYR7sU&language=pt&query=" +
             Uri.encodeQueryComponent(keyWord);
@@ -17,7 +17,6 @@ class PlaceService {
 //    print("search >>: " + url);
     var res = await http.get(url);
     if (res.statusCode == 200) {
-//      print(res.body);
       return Place.fromJson(json.decode(res.body));
     } else {
       return List();

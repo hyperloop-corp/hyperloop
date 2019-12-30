@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hyperloop/constants/colors.dart';
 import 'package:hyperloop/data_models/Route_Info.dart';
 
 class BusesShowWidget extends StatefulWidget {
@@ -79,7 +80,7 @@ class _BusesShowWidgetState extends State<BusesShowWidget> {
           trailing:
               Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
           onTap: () {
-            Navigator.pushReplacementNamed(context, '/tickets');
+            Navigator.pushReplacementNamed(context, '/bustimeline');
           },
         );
 
@@ -136,7 +137,7 @@ class _BusesShowWidgetState extends State<BusesShowWidget> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: backgroundColor,
       appBar: topAppBar,
       body: makeBody,
     );
